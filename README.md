@@ -10,3 +10,6 @@ The data are structured as ...
 ## Helpful hints
 
 - Google will search for GPS coordinates in decimal
+
+## Installation
+``git clone --recurse-submodules -j8 git://github.com/foo/bar.git``
