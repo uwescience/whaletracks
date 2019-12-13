@@ -12,4 +12,4 @@ The data are structured as ...
 - Google will search for GPS coordinates in decimal
 
 ## Installation
-``git clone --recurse-submodules -j8 git://github.com/foo/bar.git``
+``git clone --recurse-submodules https://github.com/uwescience/whaletracks.git``
