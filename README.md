@@ -17,4 +17,5 @@ The data are structured as ...
 Assumes that ``anaconda`` and ``git`` are installed.
 
 - ``git clone --recurse-submodules https://github.com/uwescience/whaletracks.git``
+- ``cd whaletracks``
 - ``bash setup.sh``
