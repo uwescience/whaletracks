@@ -3,10 +3,6 @@ Analysis of sound data to detect and track whales.
 
 The data are structured as ...
 
-## Useful tools
-
-- [Map with US counties](https://www.randymajors.com/p/countygmap.html)
-
 ## Helpful hints
 
 - Google will search for GPS coordinates in decimal
@@ -15,6 +11,10 @@ The data are structured as ...
 
 - [IRIS rest interface](https://service.iris.edu/irisws/fedcatalog/1/) (includes querying stations by geographic coordinates)
 
+- [Map with US counties](https://www.randymajors.com/p/countygmap.html)
 
 ## Installation
-``git clone --recurse-submodules https://github.com/uwescience/whaletracks.git``
+Assumes that ``anaconda`` and ``git`` are installed.
+
+- ``git clone --recurse-submodules https://github.com/uwescience/whaletracks.git``
+- ``bash setup.sh``
