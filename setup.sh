@@ -1,5 +1,6 @@
-conda config --set channel_priority strict
-conda config --add channels conda-forge
-conda install -c conda-forge libiconv
-conda install geopandas descartes
-echo "Now do: conda activate base"
+# Setup for project
+conda config --set always_yes yes --set changeps1 no
+conda update --quiet conda
+conda info --all
+conda env create --quiet --name whaletracks --file environment.yml
+echo "Now do: conda activate whaletracks"

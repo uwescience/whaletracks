@@ -1,0 +1,13 @@
+name: whaletracks
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - numpy
+  - pandas
+  - python
+  - matplotlib
+  - jupyter notebook
+  - libiconv
+  - geopandas
+  - descartes
