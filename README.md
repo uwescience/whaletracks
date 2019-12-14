@@ -11,5 +11,10 @@ The data are structured as ...
 
 - Google will search for GPS coordinates in decimal
 
+## Resources
+
+- [IRIS rest interface](https://service.iris.edu/irisws/fedcatalog/1/) (includes querying stations by geographic coordinates)
+
+
 ## Installation
 ``git clone --recurse-submodules https://github.com/uwescience/whaletracks.git``
