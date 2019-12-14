@@ -1,6 +1,21 @@
+#! /bin/bash
+# arg1: name
+if [ -z "$1" ]
+then
+      echo "Usage: 'setup.sh <env name>'"
+      echo "       Defaulting to 'whaletracks'"
+      NAME="whaletracks"
+else
+      NAME=$1
+fi
+echo ${NAME}
+exit
 # Setup for project
 conda config --set always_yes yes --set changeps1 no
 conda update --quiet conda
 conda info --all
-conda env create --quiet --name whaletracks --file environment.yml
-echo "Now do: conda activate whaletracks"
+conda env create --quiet --name ${NAME} --file environment.yml
+conda activate ${NAME}
+conda install jupyter notebook
+conda deactivate
+echo "Now do: conda activate ${NAME}"
