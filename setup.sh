@@ -15,7 +15,7 @@ conda config --set always_yes yes --set changeps1 no
 conda update --quiet conda
 conda info --all
 conda env create --quiet --name ${NAME} --file environment.yml
-conda activate ${NAME}
 conda install jupyter notebook
-conda deactivate
 echo "Now do: conda activate ${NAME}"
+echo "        conda install jupyter notebook"
+echo "        conda deactivate"
