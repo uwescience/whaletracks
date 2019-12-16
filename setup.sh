@@ -16,6 +16,5 @@ conda update --quiet conda
 conda info --all
 conda env create --quiet --name ${NAME} --file environment.yml
 conda install jupyter notebook
-echo "Now do: conda activate ${NAME}"
-echo "        conda install jupyter notebook"
-echo "        conda deactivate"
+echo "Use 'conda activate ${NAME}' to enter environment."
+echo "Use 'conda deactivate' to exit environment."

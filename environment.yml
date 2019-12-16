@@ -6,6 +6,7 @@ dependencies:
   - pandas
   - python
   - matplotlib
+  - notebook
   - libiconv
   - geopandas
   - descartes
