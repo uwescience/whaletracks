@@ -22,3 +22,8 @@ Assumes that ``anaconda`` and ``git`` are installed.
 - ``git clone --recurse-submodules https://github.com/uwescience/whaletracks.git``
 - ``cd whaletracks``
 - ``bash setup.sh``
+
+## Running codes
+You must setup the PYTHONPATH before running codes.
+- `cd whaletracks`
+- `source setup_run.sh`
