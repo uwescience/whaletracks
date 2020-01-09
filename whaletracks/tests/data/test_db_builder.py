@@ -1,5 +1,5 @@
 import whaletracks.common.constants as cn
-from whaletracks.data.data_provider import DataProvider
+from whaletracks.data.db_builder import DBBuilder
 from common_python.testing import helpers
 
 import numpy as np
@@ -9,10 +9,10 @@ import unittest
 
 IGNORE_TEST = False
 
-class TestDataProvider (unittest.TestCase):
+class TestDBBuilder (unittest.TestCase):
 
   def setUp(self):
-    self.provider = DataProvider()
+    self.provider = DBBuilder()
 
   def testConstructor(self):
     if IGNORE_TEST:

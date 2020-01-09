@@ -1,4 +1,4 @@
-"""Acquires data used from obspy."""
+"""Acquires data used from obspy and builds the database."""
 
 from common_python.database import database_util as util
 import whaletracks.common. constants as cn
@@ -13,7 +13,7 @@ import pandas as pd
 import numpy as np
 
 
-class DataProvider(object):
+class DBBuilder(object):
 
   def __init__(self, network_code="7D",
       start_time= UTCDateTime("2001-01-01"), 
