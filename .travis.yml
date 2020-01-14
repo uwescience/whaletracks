@@ -1,0 +1,19 @@
+language: python
+
+python:
+  - "3.8"
+
+install:
+  - git submodule update --init --recursive
+  - sudo apt-get update
+  - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
+  - bash miniconda.sh -b -p $HOME/miniconda
+  - export PATH="$HOME/miniconda/bin:$PATH"
+  - hash -r
+  - conda config --set always_yes yes --set changeps1 no
+  - bash setup.sh
+
+script:
+  - PYTHONPATH="`pwd`/whaletracks/python:`pwd`/common_python"
+  - export PYTHONPATH
+  - nosetests whaletracks/python/tests
