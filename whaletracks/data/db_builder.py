@@ -14,6 +14,12 @@ import numpy as np
 
 
 class DBBuilder(object):
+  """
+  Builds the whaletracks database. Useage:
+    builder = DBBuilder()
+    builder.build()
+  Database path is specified in constants.py as DB_PTH.
+  """
 
   def __init__(self, network_code="7D",
       start_time= UTCDateTime("2001-01-01"), 
@@ -56,3 +62,9 @@ class DBBuilder(object):
         for key in cn.SCM_STATION.columns:
             station_dct[key].append(str(station.__getattribute__(key)))
     return pd.DataFrame(station_dct)
+
+
+if __name__ == '__main__':
+  # Create the database
+  builder = DBBuilder()
+  builder.build()

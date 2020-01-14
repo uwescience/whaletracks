@@ -3,14 +3,10 @@
 from common_python.database import database_util as util
 import whaletracks.common. constants as cn
 
-import matplotlib.pyplot as plt
-import obspy
 import os
-from obspy.clients.fdsn import Client
-from obspy.core.utcdatetime import UTCDateTime
-from shapely.geometry import Point, Polygon
 import pandas as pd
 import numpy as np
+import sqlite3
 
 
 #Tables
@@ -21,43 +17,45 @@ TABLE_CHANNELS = "channels"
 
 class DBAccessor(object):
 
-  def __init__(self):
+  def __init__(self, db_pth=cn.DB_PTH):
     """
     :param str network_code:
     :param UTCDateTime start_time: starting time of data
     :param UTCDateTime end_time: starting time of data
     """
     self._conn = None
-    self._tables = {}  # Dataframes for tables
+    self._db_pth = db_pth
+    self._tables = {}  # Dataframes keyed by table name
 
   @property
   def df_station(self):
-    return self._readTable(self, cn.SCM_STATION.tablename)
+    return self._readTable(cn.SCM_STATION.tablename)
 
   @property
   def df_channel(self):
-    return self._readTable(self, cn.SCM_CHANNEL.tablename)
+    return self._readTable(cn.SCM_CHANNEL.tablename)
 
   @property
   def df_detection(self):
-    return self._readTable(self, cn.SCM_DETECTION.tablename)
+    return self._readTable(cn.SCM_DETECTION.tablename)
 
   def _connect(self):
-    self._conn = sqlite3.connect(cn.DB_PTH)
+    self._conn = sqlite3.connect(self._db_pth)
 
   def _close(self):
     if self._conn is not None:
       self._conn.close()
       self._conn = None
 
-  def _readTable(self, table_name):
+  def _readTable(self, tablename):
     """
     Reads the specified table from the whales database.
-    :param str table_name:
+    :param str tablename:
     :return pd.DataFrame:
     """
-    if not table_name in self._tables.keys():
+    if not tablename in self._tables.keys():
       self._connect()
-      self._tables[table_name] = pd.read_table(tablename, self._conn)
+      query = "select * from %s" % tablename
+      self._tables[tablename] = pd.read_sql_query(query, self._conn)
       self._close()
-    return self._tables[table_name]
+    return self._tables[tablename]
