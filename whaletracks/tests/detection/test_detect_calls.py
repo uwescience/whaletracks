@@ -6,7 +6,7 @@ Created on Thu Jan 16 11:24:15 2020
 @author: wader
 """
 
-import detect_calls as detect
+import whaletracks.detection.detect_calls as detect
 import numpy as np
 import unittest
 
