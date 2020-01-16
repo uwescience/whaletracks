@@ -10,11 +10,11 @@ install:
   - bash miniconda.sh -b -p $HOME/miniconda
   - export PATH="$HOME/miniconda/bin:$PATH"
   - hash -r
-  - conda config --set always_yes yes --set changeps1 no
-  - bash setup.sh
+  - conda update --quiet conda
+  - conda info --all
+  - conda install --quiet --file environment.yml
 
 script:
-  - conda activate whaletracks
   - PYTHONPATH="`pwd`/whaletracks/python:`pwd`/common_python:${PYTHONPATH}"
   - export PYTHONPATH
   - nosetests whaletracks/tests/
