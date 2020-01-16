@@ -3,5 +3,5 @@
 PYTHONPATH=${PYTHONPATH}:`pwd`
 export PYTHONPATH
 cd common_python
-bash setup_run.sh
+source setup_run.sh
 cd ..
