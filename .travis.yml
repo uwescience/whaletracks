@@ -10,7 +10,6 @@ install:
   - bash miniconda.sh -b -p $HOME/miniconda
   - export PATH="$HOME/miniconda/bin:$PATH"
   - hash -r
-  - conda update --quiet conda
   - conda info --all
   - conda install --quiet --file environment.yml
 
