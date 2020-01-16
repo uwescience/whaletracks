@@ -38,7 +38,5 @@ class TestDBAccessor (unittest.TestCase):
         expected_columns=cn.SCM_STATION.columns))
    
 
-
-
 if __name__ == '__main__':
   unittest.main()

@@ -14,6 +14,7 @@ install:
   - bash setup.sh
 
 script:
-  - PYTHONPATH="`pwd`/whaletracks/python:`pwd`/common_python"
+  - conda activate whaletracks
+  - PYTHONPATH="`pwd`/whaletracks/python:`pwd`/common_python:${PYTHONPATH}"
   - export PYTHONPATH
   - nosetests whaletracks/tests/
