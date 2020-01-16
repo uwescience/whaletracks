@@ -11,3 +11,4 @@ dependencies:
   - geopandas
   - descartes
   - obspy
+  - nose
