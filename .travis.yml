@@ -16,6 +16,4 @@ install:
 script:
   - PYTHONPATH="`pwd`/whaletracks/python:`pwd`/common_python"
   - export PYTHONPATH
-  - pwd
-  - ls -l whaletracks
-  - nosetests whaletracks/python/tests/
+  - nosetests whaletracks/tests/
