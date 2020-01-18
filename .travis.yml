@@ -17,7 +17,7 @@ install:
   - conda update -q conda
 
 script:
-  - conda create -q -n test-environment --file environment.yml
+  - conda env create -q -n test-environment --file environment.yml
   - conda activate test-environment
   - PYTHONPATH="`pwd`/whaletracks/python:`pwd`/common_python:${PYTHONPATH}"
   - export PYTHONPATH
