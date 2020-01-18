@@ -1,3 +1,5 @@
+![](https://travis-ci.com/uwescience/whaletracks.svg?branch=master)
+
 # whaletracks
 Analysis of sound data to detect and track whales.
 
