@@ -29,6 +29,7 @@ sys.path.insert(0, COMMON_CODE)
 # Columns
 AZIMUTH = "azimuth"
 CHANNEL = "channel"
+CHANNEL_CODE = "channel_code"
 CHANNEL_ID = "channel_id"  # NETWORK_CODE.STATION_CODE.CHANNEL_CODE
 CHANNEL_TYPES = "channel_types"
 CODE = "code"
@@ -72,6 +73,11 @@ SCM_CHANNEL = Schema(tablename="channels",
     AZIMUTH, CHANNEL_ID, CHANNEL_TYPES, DIP, END_DATE, 
     POLES, SENSITIVITY_FREQUENCY, 
     SENSITIVITY_VALUE, SENSOR, START_DATE, STATION_ID, ZEROES,
+    ])
+SCM_DETECTION = Schema(tablename="detections",
+    columns=[
+    CHANNEL_CODE, DURATION, END_TIME, MIN_SIGNAL, PEAK_SIGNAL, PEAK_TIME,
+    START_TIME, STATION_CODE, THRESHOLD
     ])
 SCMS = [SCM_STATION, SCM_CHANNEL]
 TABLES = [s.tablename for s in SCMS]
