@@ -6,21 +6,12 @@ Created on Tue Jan 28 14:15:18 2020
 @author: wader
 """
 
+import whaletracks.common.constants as cn
+
 import pandas as pd
 import scipy.signal as sig
 import matplotlib.pyplot as plt
 
-PEAK_TIME = "peak_time"
-PEAK_SIGNAL = "peak_signal"
-DURATION = "duration"
-START_TIME = "start_time"
-END_TIME = "end_time"
-THRESHOLD = "threshold"
-MIN_SIGNAL = "min_signal"
-
-COLUMNS = [PEAK_TIME, PEAK_SIGNAL, DURATION, START_TIME, END_TIME, 
-           THRESHOLD, MIN_SIGNAL]
-       
 
 SECONDS_IN_MINUTE = 60
 
@@ -43,23 +34,25 @@ class EventAnalyzer(object):
             wlen=SECONDS_IN_MINUTE*(1/(self.times[1]-self.times[0])),
             rel_height=.9)
         self.df = self._makePeakDF(peak_indicies, peak_properties)
-        self.df[THRESHOLD] = prominence
+        self.df[cn.THRESHOLD] = prominence
      
+    # FIXME: EventAnalyzer shouldn't know the SCM_DETECTION schema
     def _makePeakDF(self, peak_indicies, peak_properties):
         """
         :param int index: index of peak
-        :return pd.DataFrame: COLUMNS, except THRESHOLD
+        :return pd.DataFrame: all columns, except cn.THRESHOLD
         """
-        dct = {k: [] for k in COLUMNS if k != THRESHOLD}
+        excludes = [cn.THRESHOLD, cn.STATION_CODE, cn.CHANNEL_CODE]
+        dct = {k: [] for k in cn.SCM_DETECTION.columns if not k in excludes}
         for index in range(len(peak_indicies)):
-            dct[PEAK_TIME].append(self.times[peak_indicies[index]])
-            dct[PEAK_SIGNAL].append(peak_properties["prominences"][index])
-            dct[START_TIME].append(
+            dct[cn.PEAK_TIME].append(self.times[peak_indicies[index]])
+            dct[cn.PEAK_SIGNAL].append(peak_properties["prominences"][index])
+            dct[cn.START_TIME].append(
                     self.times[peak_properties["left_ips"].astype(int)[index]])
-            dct[END_TIME].append(
+            dct[cn.END_TIME].append(
                     self.times[peak_properties["right_ips"].astype(int)[index]])
-            dct[MIN_SIGNAL].append(peak_properties["width_heights"][index])
-            dct[DURATION].append(self.times[peak_properties["right_ips"].astype(int)[index]]-
+            dct[cn.MIN_SIGNAL].append(peak_properties["width_heights"][index])
+            dct[cn.DURATION].append(self.times[peak_properties["right_ips"].astype(int)[index]]-
                                  self.times[peak_properties["left_ips"].astype(int)[index]])
         return pd.DataFrame(dct)
         

@@ -8,6 +8,7 @@ Created on Thu Jan 30 11:53:17 2020
 
 from whaletracks.detection.event_analyzer import EventAnalyzer
 from whaletracks.detection import event_analyzer 
+import whaletracks.common.constants as cn
 import numpy as np
 import unittest
 from random import seed
@@ -35,8 +36,7 @@ class TestEventAnalyzer(unittest.TestCase):
         analyzer = EventAnalyzer(times, values, UTCDateTime("2011-12-14T12:00:00.000"),
                                  dur=4, 
                                  prominence=1.5)
-        diff = set(event_analyzer.COLUMNS).symmetric_difference(
-                analyzer.df.columns)
+        diff = set(analyzer.df.columns).difference(cn.SCM_DETECTION.columns)
         self.assertEqual(len(diff), 0)
     
     def testConstructorSophisticated(self):
