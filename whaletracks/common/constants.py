@@ -27,36 +27,51 @@ sys.path.insert(0, PROJECT_CODE)
 sys.path.insert(0, COMMON_CODE)
 
 # Columns
+AZIMUTH = "azimuth"
 CHANNEL = "channel"
+CHANNEL_ID = "channel_id"  # NETWORK_CODE.STATION_CODE.CHANNEL_CODE
+CHANNEL_TYPES = "channel_types"
 CODE = "code"
 CREATION_DATE = "creation_date"
+DIP = "dip"
 DURATION = "duration"
 ELEVATION  = 'elevation'
 END_DATE  = 'end_date'
 END_TIME = 'end_time'
+GAIN = "gain"
 LATITUDE  = 'latitude'
 LONGITUDE  = 'longitude'
+MIN_SIGNAL = "min_signal"
 NETWORK = "network"
-PEAKTIME = "peaktime"
-START_TIME = "StartTime"
+NETWORK_CODE = "network_code"
+PEAK_SIGNAL = "peak_signal"
+PEAK_TIME = "peak_time"
+POLES = "poles"  # semicolon separated values of immaginary numbers
+SENSITIVITY_FREQUENCY = "sensitivity_frequency"
+SENSITIVITY_VALUE = "sensitivity_value"
+SENSOR = "sensor"
+START_TIME = "start_time"
 START_DATE  = 'start_date'
 STATION_CODE = "station_code"
+STATION_ID = "station_id"  # NETWORK_CODE.STATION_CODE
+THRESHOLD = "threshold"
 TERMINATION_DATE  = 'termination_date'
 TOTAL_NUMBER_OF_CHANNELS  = 'total_number_of_channels'
-# Table columns
+VALUE = "value"
+ZEROES = "zeroes" # semicolon separated values of immaginary numbers
+
+# Table schemas
 SCM_STATION = Schema(
     tablename="stations",
     columns= [CREATION_DATE, ELEVATION, END_DATE, LATITUDE,
-    LONGITUDE, START_DATE, CODE, TERMINATION_DATE,
+    LONGITUDE, NETWORK_CODE, STATION_CODE, START_DATE, TERMINATION_DATE,
     TOTAL_NUMBER_OF_CHANNELS]
     )
-CHANNEL_SCM = Schema(
-    tablename="channels",
-    columns= [CODE]
-    )
-DETECTION_SCM = Schema(
-    tablename="detections",
-    columns= [CODE]
-    )
-SCMS = [SCM_STATION]
+SCM_CHANNEL = Schema(tablename="channels",
+    columns = [
+    AZIMUTH, CHANNEL_ID, CHANNEL_TYPES, DIP, END_DATE, 
+    POLES, SENSITIVITY_FREQUENCY, 
+    SENSITIVITY_VALUE, SENSOR, START_DATE, STATION_ID, ZEROES,
+    ])
+SCMS = [SCM_STATION, SCM_CHANNEL]
 TABLES = [s.tablename for s in SCMS]

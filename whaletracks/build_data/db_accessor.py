@@ -3,6 +3,7 @@
 from common_python.database import database_util as util
 import whaletracks.common. constants as cn
 
+from obspy.core.utcdatetime import UTCDateTime
 import os
 import pandas as pd
 import numpy as np
@@ -33,7 +34,10 @@ class DBAccessor(object):
 
   @property
   def df_channel(self):
-    return self._readTable(cn.SCM_CHANNEL.tablename)
+    df = self._readTable(cn.SCM_CHANNEL.tablename)
+    # Convert datetimes back to string
+    for col in [cn.START_DATE, cn.END_DATE]
+      df[col] = [UTCDateTime(t) for t in df[col]]
 
   @property
   def df_detection(self):

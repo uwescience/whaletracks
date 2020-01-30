@@ -1,6 +1,6 @@
 import whaletracks.common.constants as cn
-from whaletracks.data.db_accessor import DBAccessor
-from whaletracks.data.db_builder import DBBuilder
+from whaletracks.build_data.db_accessor import DBAccessor
+from whaletracks.build_data.db_builder import DBBuilder
 from common_python.testing import helpers
 
 import numpy as np
