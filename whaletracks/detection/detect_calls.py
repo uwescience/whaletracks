@@ -35,7 +35,7 @@ FILTER_OFFSET = 10
 # TODO: change this to median?
 def defaultScaleFunction(Sxx):
     vmin=np.median(20*np.log10(Sxx))+0*np.std(20*np.log10(Sxx)) 
-    vmax=np.median(20*np.log10(Sxx))+3*np.std(20*np.log10(Sxx)) 
+    vmax=np.median(20*np.log10(Sxx))+2*np.std(20*np.log10(Sxx)) 
     return vmin, vmax
 
 def plotwav(samp, data, filt_type='bandpass', filt_freqlim=[8, 20], 
@@ -172,11 +172,17 @@ def xcorr(t,f,Sxx,tvec,fvec,BlueKernel,plotflag=True,scale_func=defaultScaleFunc
         
         CorrVal[ind1] = np.sum(np.multiply(BlueKernel, corrchunk)) #save cross-correlation value for each frame
         ind1 += 1
-   
+    
+    
     CorrVal_scale=CorrVal*1/(np.median(Sxx)*np.size(t))
+    CorrVal_scale[0]=0
+    CorrVal_scale[-1]=0
+    neg_ind=CorrVal_scale<0
+    CorrVal_scale[neg_ind]=0
     t_scale=t[int(len(tvec)/2)-1:-math.ceil(len(tvec)/2)]
 #Visualize spectrogram and detection scores of of data
-        
+       
+    
     if plotflag==True:
         t1=min(t)
         t2=max(t)
@@ -184,6 +190,7 @@ def xcorr(t,f,Sxx,tvec,fvec,BlueKernel,plotflag=True,scale_func=defaultScaleFunc
         plt.figure(PLT_SCORE, figsize=(9, 3))
         plt.subplot(211)
         plt.plot(t_scale,CorrVal_scale) #plot normalized detection scores as a time series.
+        
         plt.axis([t1, t2, 0, np.max(CorrVal_scale)]) #look at only positive values
         plt.xlabel('Seconds')
         plt.ylabel('Detection score')
@@ -201,4 +208,10 @@ def xcorr(t,f,Sxx,tvec,fvec,BlueKernel,plotflag=True,scale_func=defaultScaleFunc
         return  [t_scale, CorrVal_scale] 
 
     #plt.savefig('Spectrogram_scores.png')
+
+
+def pickpeaks(t_scale,CorrVal_scale,dur,distance=dur*(1/(t_scale[1]-t_scale[0])),
+              width=(dur/2)*(1/(t_scale[1]-t_scale[0])),
+              prominence=1.5,wlen=60*(1/(t_scale[1]-t_scale[0])),rel_height=.9):
+
 
