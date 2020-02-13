@@ -21,6 +21,7 @@ STATION_FILE = os.path.join(DATA_DIR, "ALL-StationList.csv")
 BLUE_DETECTION_FILE = os.path.join(DATA_DIR,
     "ExampleBlueDetections.csv")
 DB_PTH = os.path.join(DATA_DIR, "whaletracks.db")
+DETECTION_PTH = os.path.join(DATA_DIR, "detections.csv")
 
 # Add search paths
 sys.path.insert(0, PROJECT_CODE)

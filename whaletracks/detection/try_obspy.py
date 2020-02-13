@@ -17,14 +17,18 @@ import scipy.signal as sig
 import matplotlib.colors as color
 import matplotlib.animation as animation
 import datetime
-import detect_calls as detect
+import whaletracks.detection.detect_calls as detect
 from whaletracks.detection.event_analyzer import EventAnalyzer
+import pandas as pd
+import whaletracks.common.constants as cn
+
 
 f0 = 16 #average start frequency
 f1 = 14.6 #average end frequency
 bdwdth = 1 # average bandwidth
 dur = 10 #average duration
 thresh = 2;
+CHUNK_FILE = "analyzers.csv"
 
 client_code = 'IRIS'
 client = Client('IRIS')
@@ -41,26 +45,38 @@ UTCend=UTCDateTime(endtime)
 UTCstart_chunk=UTCstart
 UTCend_chunk=UTCstart+1800
 
+# Check for existing file
+if os.path.isfile(CHUNK_FILE):
+    analyzers = [pd.read_csv(CHUNK_FILE)]
+else:
+    analyzers = []
+
 while UTCend > UTCstart_chunk:
 
     st_raw=client.get_waveforms(network="7D",station='*',location='*',
                                 channel='BHZ,HHZ',starttime=UTCstart_chunk,endtime=UTCend_chunk,attach_response=True)
-    
+    #st_raw.detrend(type="demean")
+    #st_raw.remove_response(output='VEL', pre_filt=(.2,.5,22,24))
+    #st_raw.remove_response()
+    #st_raw.remove_sensitivity()
     inventory=client.get_stations(network="7D",station='*',channel='BHZ,HHZ',
                                   level="response",starttime=UTCstart,endtime=UTCend)
     
     num_sta=len(st_raw)
 
-
-    for j in range(1,num_sta):
+    analyzers_chunk=[]
+    for j in range(2,num_sta):
 
         tr=st_raw[j]
-        inv=inventory[j]
+        
 
         tr_filt=tr.copy()
+        #tr_filt.detrend(type="demean")
+        #tr_filt.remove_response(output='VEL', pre_filt=(.002,.005,23,25))
+        #tr_filt.remove_sensitivity()
         
-        if len(tr_filt.data) < tr_filt.stats.sampling_rate*10:
-            continue
+        #if len(tr_filt.data) < tr_filt.stats.sampling_rate*10:
+            #continue
     
         [f,t,Sxx]=detect.plotwav(tr_filt.stats.sampling_rate, tr_filt.data, window_size=5, overlap=.95)
     
@@ -68,32 +84,23 @@ while UTCend > UTCstart_chunk:
     
         [times, values]=detect.xcorr(t,f,Sxx,tvec,fvec,BlueKernel)
         
+        analyzer_j = EventAnalyzer(times, values, UTCstart_chunk)
+        analyzers_chunk.append(analyzer_j.df)
         
-        
-        
-        
-        some_object=detect.pick_peaks(t_scale,CorrVal_scale,dur)
-        
-        corr_peaks, peak_properties=sig.find_peaks(CorrVal_scale,distance=dur*(1/(t_scale[1]-t_scale[0])),
-                                                   width=(dur/2)*(1/(t_scale[1]-t_scale[0])),
-                                                   prominence=1.5,wlen=60*(1/(t_scale[1]-t_scale[0])),rel_height=.9)
-   
-        plt.plot(t_scale,CorrVal_scale)
-        plt.plot(t_scale[corr_peaks],CorrVal_scale[corr_peaks],"x")
-        plt.hlines(peak_properties["width_heights"],t_scale[peak_properties["left_ips"].astype(int)],
-                                   t_scale[peak_properties["right_ips"].astype(int)],color="C2")
-        
-        det_times
-        det_strength
-        det_start
-        det_end
-        det_length
-        det_thresh
-        det_width_height
+        analyzer_j.plot()
         
         
     UTCstart_chunk=UTCstart_chunk+1800
     UTCend_chunk=UTCend_chunk+1800
+    
+    
+    analyzers.extend(analyzers_chunk)
+    new_df = pd.concat(analyzers)
+    new_df.to_csv(CHUNK_FILE)
+    
+    
+final_analyzer=pd.concat(analyzers)
+final_analyzer.to_csv(cn.DETECTION_PATH)
     
     #tr_filt.filter('bandpass',freqmin=5,freqmax=22,corners=2,zerophase=True)
 

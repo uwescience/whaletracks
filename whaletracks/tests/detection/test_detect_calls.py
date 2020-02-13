@@ -6,7 +6,7 @@ Created on Thu Jan 16 11:24:15 2020
 @author: wader
 """
 
-import whaletracks.detect_calls as detect
+import whaletracks.detection.detect_calls as detect
 import numpy as np
 import unittest
 
@@ -63,8 +63,6 @@ class TestFunctions(unittest.TestCase):
         [f, t, Sxx] = detect.plotwav(samp, data, plotflag=False)
         [tvec, fvec, BlueKernel] = detect.buildkernel(f0, f1, bdwdth, dur,
         f, t, samp, plotflag=False)
-        
-        
         [t_scale, CorrVal_scale] = detect.xcorr(t,f,Sxx,tvec,fvec,BlueKernel,
         plotflag=True)
         

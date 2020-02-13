@@ -13,6 +13,7 @@ Created on Thu Jan  9 13:48:49 2020
 from obspy.clients.fdsn import Client
 from obspy import UTCDateTime
 import matplotlib.pyplot as plt
+import matplotlib.cm as cm
 import os
 import scipy.io.wavfile as siow
 import numpy as np
@@ -159,7 +160,7 @@ def xcorr(t,f,Sxx,tvec,fvec,BlueKernel,plotflag=True,scale_func=defaultScaleFunc
         t_scale - correlation times (seconds)
         CorrVal_scale - correlation values
     """
-
+    
 #Cross-correlate kernel with spectrogram
     ind1 = 0
     CorrVal = np.zeros(np.size(t) - (len(tvec)-1)) #preallocate array for correlation values
@@ -184,34 +185,37 @@ def xcorr(t,f,Sxx,tvec,fvec,BlueKernel,plotflag=True,scale_func=defaultScaleFunc
        
     
     if plotflag==True:
+        
         t1=min(t)
         t2=max(t)
 #plot timeseries on upper axis
         plt.figure(PLT_SCORE, figsize=(9, 3))
-        plt.subplot(211)
-        plt.plot(t_scale,CorrVal_scale) #plot normalized detection scores as a time series.
+        fig, (ax0, ax1) = plt.subplots(nrows=2)
+        ax0.plot(t_scale,CorrVal_scale) #plot normalized detection scores as a time series.
         
-        plt.axis([t1, t2, 0, np.max(CorrVal_scale)]) #look at only positive values
-        plt.xlabel('Seconds')
-        plt.ylabel('Detection score')
-        plt.title('Spectrogram and detection scores of test data')
+        ax0.set_xlim([t1, t2]) #look at only positive values
+        ax0.set_ylim([0, np.max(CorrVal_scale)])
+        ax0.set_xlabel('Seconds')
+        ax0.set_ylabel('Detection score')
+        ax0.set_title('Spectrogram and detection scores of test data')
 
 #plot spectrogram on lower axis
         cmap = plt.get_cmap('magma')
         vmin, vmax = scale_func(Sxx)
         norm = color.Normalize(vmin=vmin, vmax=vmax)
-        plt.subplot(212)
-        plt.pcolormesh(t, f, 20*np.log10(Sxx), cmap=cmap,norm=norm)   
-        plt.axis([t1, t2, 12, 18]) #look at spectrogram segment between given time boundaries
-        plt.ylabel('Frequency [Hz]')
-        plt.xlabel('Time [seconds]')
-        return  [t_scale, CorrVal_scale] 
+        #plt.subplot(212)
+        im = ax1.pcolormesh(t, f, 20*np.log10(Sxx), cmap=cmap,norm=norm) 
+        fig.colorbar(im, ax=ax1,orientation='horizontal')
+        ax1.set_xlim([t1, t2]) #look at spectrogram segment between given time boundaries
+        ax1.set_ylim([12, 18])
+        ax1.set_ylabel('Frequency [Hz]')
+        ax1.set_xticks([])
+        #ax1.set_xlabel('Time [seconds]')
+        fig.tight_layout()
+        fig
+    return  [t_scale, CorrVal_scale] 
 
     #plt.savefig('Spectrogram_scores.png')
 
-
-def pickpeaks(t_scale,CorrVal_scale,dur,distance=dur*(1/(t_scale[1]-t_scale[0])),
-              width=(dur/2)*(1/(t_scale[1]-t_scale[0])),
-              prominence=1.5,wlen=60*(1/(t_scale[1]-t_scale[0])),rel_height=.9):
 
 
