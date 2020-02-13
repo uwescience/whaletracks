@@ -1,7 +1,8 @@
 """Access methods for acquiring data from the Whale Database"""
 
 from common_python.database import database_util as util
-import whaletracks.common. constants as cn
+import whaletracks.common.constants as cn
+from whaletracks.common import util
 
 from obspy.core.utcdatetime import UTCDateTime
 import os
@@ -36,8 +37,15 @@ class DBAccessor(object):
   def df_channel(self):
     df = self._readTable(cn.SCM_CHANNEL.tablename)
     # Convert datetimes back to string
-    for col in [cn.START_DATE, cn.END_DATE]
+    for col in [cn.START_DATE, cn.END_DATE]:
       df[col] = [UTCDateTime(t) for t in df[col]]
+    for col in [cn.POLES, cn.ZEROES]:
+      complexes = []
+      for stg in df[col]:
+        cmplx = util.complexifyString(stg)
+        complexes.append(cmplx)
+      df[col] = complexes
+    return df
 
   @property
   def df_detection(self):

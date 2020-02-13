@@ -19,10 +19,13 @@ class TestDBAccessor (unittest.TestCase):
     if os.path.isfile(TEST_DB_PTH):
       os.remove(TEST_DB_PTH)
 
-  def setUp(self):
+  def _init(self):
     builder = DBBuilder(db_pth=TEST_DB_PTH)
     builder.build()
     self.accessor = DBAccessor(db_pth=TEST_DB_PTH)
+
+  def setUp(self):
+    self._init()
 
   def testConstructor(self):
     if IGNORE_TEST:
@@ -36,6 +39,13 @@ class TestDBAccessor (unittest.TestCase):
     df = self.accessor.df_station
     self.assertTrue(helpers.isValidDataFrame(df,
         expected_columns=cn.SCM_STATION.columns))
+
+  def testDfChannel(self):
+    if IGNORE_TEST:
+      return
+    df = self.accessor.df_channel
+    self.assertTrue(helpers.isValidDataFrame(df,
+        expected_columns=cn.SCM_CHANNEL.columns))
    
 
 if __name__ == '__main__':
