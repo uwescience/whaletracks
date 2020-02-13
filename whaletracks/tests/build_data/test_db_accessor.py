@@ -46,6 +46,13 @@ class TestDBAccessor (unittest.TestCase):
     df = self.accessor.df_channel
     self.assertTrue(helpers.isValidDataFrame(df,
         expected_columns=cn.SCM_CHANNEL.columns))
+
+  def testDfDetection(self):
+    if IGNORE_TEST:
+      return
+    df = self.accessor.df_detection
+    self.assertTrue(helpers.isValidDataFrame(df,
+        expected_columns=cn.SCM_DETECTION.columns))
    
 
 if __name__ == '__main__':
