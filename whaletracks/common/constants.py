@@ -40,6 +40,7 @@ DURATION = "duration"
 ELEVATION  = 'elevation'
 END_DATE  = 'end_date'
 END_TIME = 'end_time'
+EVENT = "event"
 GAIN = "gain"
 LATITUDE  = 'latitude'
 LONGITUDE  = 'longitude'
@@ -79,6 +80,14 @@ SCM_DETECTION = Schema(tablename="detections",
     columns=[
     CHANNEL_CODE, DURATION, END_TIME, MIN_SIGNAL, PEAK_SIGNAL, PEAK_TIME,
     START_TIME, STATION_CODE, THRESHOLD
+    ])
+SCM_PEAK = Schema(tablename="peaks",
+    columns=[
+    NETWORK_CODE, STATION_CODE, START_TIME, END_TIME, VALUE, EVENT,
+    ])
+SCM_STATION_QUALITY = Schema(tablename="station_quality",
+    columns=[
+    NETWORK_CODE, STATION_CODE, START_TIME, END_TIME,
     ])
 SCMS = [SCM_STATION, SCM_CHANNEL, SCM_DETECTION]
 TABLES = [s.tablename for s in SCMS]
