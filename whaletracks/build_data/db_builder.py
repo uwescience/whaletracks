@@ -77,6 +77,8 @@ class DBBuilder(object):
     df[cn.START_DATE] = [str(d) for d in df[cn.START_DATE]]
     util.updateDBTable(df, self._db_pth,
         cn.SCM_CHANNEL.tablename)
+    util.updateDBTable(self._makeDetectionDF(), self._db_pth,
+        cn.SCM_DETECTION.tablename)
 
   ########## Table building methods. ##############
   def _makeStationDF(self):
@@ -99,6 +101,12 @@ class DBBuilder(object):
         len(station_dct[cn.STATION_CODE]))
     del station_dct[CODE]
     return pd.DataFrame(station_dct)
+
+  def _makeDetectionDF(self):
+    """
+    Constructs a dataframe of detection
+    """
+    return pd.read_csv(cn.DETECTION_PTH)
         
   def _makeChannelDF(self):
     """
