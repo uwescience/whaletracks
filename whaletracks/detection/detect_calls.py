@@ -39,6 +39,11 @@ def defaultScaleFunction(Sxx):
     vmax=np.median(20*np.log10(Sxx))+2*np.std(20*np.log10(Sxx)) 
     return vmin, vmax
 
+def defaultKernelLims(f0,f1,bdwdth):
+    ker_min=f1-3*bdwdth
+    ker_max=f0+3*bdwdth
+    return ker_min, ker_max
+
 def plotwav(samp, data, filt_type='bandpass', filt_freqlim=[8, 20], 
             filt_order=4, window_size=4, overlap=.95, window_type='hann',
             plotflag=True, scale_func=defaultScaleFunction,ylim=[12, 18]): 
@@ -97,7 +102,7 @@ def plotwav(samp, data, filt_type='bandpass', filt_freqlim=[8, 20],
 
 
 #Define function to build 2-D kernel linear sweep to cross-correlate with spectrograms
-def buildkernel(f0, f1, bdwdth, dur, f, t, samp, plotflag=True):
+def buildkernel(f0, f1, bdwdth, dur, f, t, samp, plotflag=True,kernel_lims=defaultKernelLims):
     
     """
     Calculate kernel and plot
@@ -109,6 +114,7 @@ def buildkernel(f0, f1, bdwdth, dur, f, t, samp, plotflag=True):
     :param np.array t: vector of times returned from plotwav
     :param float samp: sample rate
     :param bool plotflag: If True, plots kernel. If False, no plot.
+    :param tuple kernel_lims: Tuple of minimum kernel range and maximum kernel range
     :return numpy.array, numpy.array, 2-d numpy.array: 
         vector of kernel times, vector of kernel frequencies, matrix of kernel values
     Key variables
@@ -120,6 +126,7 @@ def buildkernel(f0, f1, bdwdth, dur, f, t, samp, plotflag=True):
     tvec = np.linspace(0,dur,np.size(np.nonzero(t < dur))) #define kernel as length dur
     fvec = f #define frequency span of kernel to match spectrogram
     Kdist = np.zeros((np.size(tvec), np.size(fvec))) #preallocate space for kernel values
+    ker_min, ker_max=kernel_lims(f0,f1,bdwdth)
     
     for j in range(np.size(tvec)):
         #calculate hat function that is centered on linearly decresing
@@ -128,17 +135,22 @@ def buildkernel(f0, f1, bdwdth, dur, f, t, samp, plotflag=True):
         Kval = (1-np.square(x)/(bdwdth*bdwdth))*np.exp(-np.square(x)/(2*(bdwdth*bdwdth)))
         Kdist[j] = Kval #store hat function values in preallocated array
                                                            
-    BlueKernel = np.transpose(Kdist) #transpose preallocated array to be plotted vs. tvec and fvec
+    BlueKernel_full = np.transpose(Kdist) #transpose preallocated array to be plotted vs. tvec and fvec
+    freq_inds=np.where(np.logical_and(fvec>=ker_min, fvec<=ker_max))
+    
+    fvec_sub=fvec[freq_inds]
+    BlueKernel=BlueKernel_full[freq_inds,:][0]
+    
     
     if plotflag == True:
         plt.figure(PLT_KERNEL)
-        plt.pcolormesh(tvec, fvec, BlueKernel) #show plot of kernel
+        plt.pcolormesh(tvec, fvec_sub, BlueKernel) #show plot of kernel
         plt.axis([0, dur, np.min(fvec), np.max(fvec)])
         plt.gca().set_aspect('equal')
         plt.colorbar()
         plt.title('Blue whale B-call kernel')
 
-    return [tvec, fvec, BlueKernel]
+    return [tvec, fvec_sub, BlueKernel, freq_inds]
 
 
 
@@ -181,8 +193,7 @@ def xcorr(t,f,Sxx,tvec,fvec,BlueKernel,plotflag=True,scale_func=defaultScaleFunc
     neg_ind=CorrVal_scale<0
     CorrVal_scale[neg_ind]=0
     t_scale=t[int(len(tvec)/2)-1:-math.ceil(len(tvec)/2)]
-#Visualize spectrogram and detection scores of of data
-       
+#Visualize spectrogram and detection scores of of data  
     
     if plotflag==True:
         

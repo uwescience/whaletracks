@@ -28,6 +28,7 @@ f1 = 14.6 #average end frequency
 bdwdth = 1 # average bandwidth
 dur = 10 #average duration
 thresh = 2;
+kernel_lims=[f1-bdwdth*3, f0+bdwdth*3]
 CHUNK_FILE = "analyzers.csv"
 
 client_code = 'IRIS'
@@ -36,8 +37,8 @@ client = Client('IRIS')
 starttime=("2011-12-14T12:00:00.000")
 endtime=("2011-12-14T12:20:00.000")
 
-starttime=("2011-10-01T12:00:00.000")
-endtime=("2012-07-01T12:00:00.000")
+#starttime=("2011-10-01T12:00:00.000")
+#endtime=("2012-07-01T12:00:00.000")
 
 UTCstart=UTCDateTime(starttime)
 UTCend=UTCDateTime(endtime)
@@ -55,10 +56,11 @@ while UTCend > UTCstart_chunk:
 
     st_raw=client.get_waveforms(network="7D",station='*',location='*',
                                 channel='BHZ,HHZ',starttime=UTCstart_chunk,endtime=UTCend_chunk,attach_response=True)
-    #st_raw.detrend(type="demean")
-    #st_raw.remove_response(output='VEL', pre_filt=(.2,.5,22,24))
-    #st_raw.remove_response()
-    #st_raw.remove_sensitivity()
+    st_raw.detrend(type="demean")
+    st_raw.detrend(type="linear")
+    st_raw.remove_response(output='VEL', pre_filt=(.2,.5,22,24))
+    st_raw.remove_response()
+    st_raw.remove_sensitivity()
     inventory=client.get_stations(network="7D",station='*',channel='BHZ,HHZ',
                                   level="response",starttime=UTCstart,endtime=UTCend)
     
@@ -80,9 +82,14 @@ while UTCend > UTCstart_chunk:
     
         [f,t,Sxx]=detect.plotwav(tr_filt.stats.sampling_rate, tr_filt.data, window_size=5, overlap=.95)
     
-        [tvec, fvec, BlueKernel]=detect.buildkernel(f0, f1, bdwdth, dur, f, t, tr_filt.stats.sampling_rate)
-    
-        [times, values]=detect.xcorr(t,f,Sxx,tvec,fvec,BlueKernel)
+        [tvec, fvec, BlueKernel, freq_inds]=detect.buildkernel(f0, f1, bdwdth, dur, f, t, tr_filt.stats.sampling_rate)
+        
+        #subset spectrogram to be in same frequency range as kernel
+        Sxx_sub=Sxx[freq_inds,:][0]
+        f_sub=f[freq_inds]
+        
+        [times, values]=detect.xcorr(t,f_sub,Sxx_sub,tvec,fvec,BlueKernel)
+        
         
         analyzer_j = EventAnalyzer(times, values, UTCstart_chunk)
         analyzers_chunk.append(analyzer_j.df)
