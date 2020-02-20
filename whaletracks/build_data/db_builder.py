@@ -8,7 +8,6 @@ import obspy
 import os
 from obspy.clients.fdsn import Client
 from obspy.core.utcdatetime import UTCDateTime
-from shapely.geometry import Point, Polygon
 import pandas as pd
 import numpy as np
 
