@@ -21,5 +21,4 @@ script:
   - conda activate test-environment
   - PYTHONPATH="`pwd`/whaletracks/python:`pwd`/common_python:${PYTHONPATH}"
   - export PYTHONPATH
-  - cd data; unzip db.zip; cd ..
   - nosetests whaletracks/tests/
