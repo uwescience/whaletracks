@@ -5,7 +5,7 @@ NAME="whalet"
 conda config --set always_yes yes --set changeps1 no
 conda update --quiet conda
 conda info --all
-conda env create --quiet --name ${NAME} --file environment.yml
+conda env create --quiet --file environment.yml
 conda install jupyter notebook
 # Install the database browser
 sudo apt-get install sqlitebrowser
