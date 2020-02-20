@@ -11,13 +11,13 @@ import whaletracks.common.constants as cn
 import pandas as pd
 import scipy.signal as sig
 import matplotlib.pyplot as plt
-
+import numpy as np
 
 SECONDS_IN_MINUTE = 60
 
 class EventAnalyzer(object):
     
-    def __init__(self, times, values, start_chunk, dur=10, prominence=1.5):
+    def __init__(self, times, values, start_chunk, dur=10, prominence=.5):
         """
         :param list-float times: offsets in seconds
         :param list-float values: values at times
@@ -32,7 +32,7 @@ class EventAnalyzer(object):
             width=(dur/2)*(1/(self.times[1]-self.times[0])),
             prominence=prominence,
             wlen=SECONDS_IN_MINUTE*(1/(self.times[1]-self.times[0])),
-            rel_height=.9)
+            rel_height=.7)
         self.df = self._makePeakDF(peak_indicies, peak_properties)
         self.df[cn.THRESHOLD] = prominence
      

@@ -1,6 +1,6 @@
 #! /bin/bash
 # Sets up the conda environment whaletracks
-NAME="whaletracks"
+NAME="whalet"
 # Setup for project
 conda config --set always_yes yes --set changeps1 no
 conda update --quiet conda

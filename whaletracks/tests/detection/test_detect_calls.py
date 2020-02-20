@@ -18,10 +18,11 @@ class TestFunctions(unittest.TestCase):
         [vmin, vmax] = detect.defaultScaleFunction(Sxx)
         #import pdb; pdb.set_trace()
         self.assertLess(vmin, vmax)
+
         
     def testPlotwav(self):
         samp=50
-        data=np.repeat(.5,10000)
+        data=np.random.randn(10001)
         
         
         [f1, t1, Sxx1] = detect.plotwav(samp, data)
@@ -45,7 +46,7 @@ class TestFunctions(unittest.TestCase):
         t=np.array(range(1,6000))
         
         
-        [tvec, fvec, BlueKernel] = detect.buildkernel(f0, f1, bdwdth, dur,
+        [tvec, fvec, BlueKernel, freq_inds] = detect.buildkernel(f0, f1, bdwdth, dur,
         f, t, samp, plotflag=True)
         
         #import pdb; pdb.set_trace()
@@ -53,15 +54,23 @@ class TestFunctions(unittest.TestCase):
         self.assertEqual(len(fvec),BlueKernel.shape[0])
         
         
+    def testDefaultKernelLims(self):
+        f0 = 16 
+        f1 = 14.6 
+        bdwdth = 1 
+        [ker_min, ker_max] = detect.defaultKernelLims(f0,f1,bdwdth)
+        self.assertLess(ker_min,ker_max)
+        
+        
     def testXcorr(self):
         samp=50
-        data=np.repeat(.5,10001)
+        data=np.random.randn(10001)
         f0 = 16 
         f1 = 14.6 
         bdwdth = 1 
         dur = 10
         [f, t, Sxx] = detect.plotwav(samp, data, plotflag=False)
-        [tvec, fvec, BlueKernel] = detect.buildkernel(f0, f1, bdwdth, dur,
+        [tvec, fvec, BlueKernel, freq_inds] = detect.buildkernel(f0, f1, bdwdth, dur,
         f, t, samp, plotflag=False)
         [t_scale, CorrVal_scale] = detect.xcorr(t,f,Sxx,tvec,fvec,BlueKernel,
         plotflag=True)
@@ -69,7 +78,18 @@ class TestFunctions(unittest.TestCase):
         #import pdb; pdb.set_trace()
         self.assertEqual(len(t_scale),len(CorrVal_scale))
 
-        
+    def testXcorr_log(self):
+        samp=50
+        data=np.random.randn(10001)
+        f0 = 16 
+        f1 = 14.6 
+        bdwdth = 1 
+        dur = 10
+        [f, t, Sxx] = detect.plotwav(samp, data, plotflag=False)
+        [tvec, fvec, BlueKernel, freq_inds] = detect.buildkernel(f0, f1, bdwdth, dur,
+        f, t, samp, plotflag=False)
+        [t_scale, CorrVal_scale] = detect.xcorr_log(t,f,Sxx,tvec,fvec,BlueKernel,
+        plotflag=True)
         
         
 if __name__ == "__main__":
