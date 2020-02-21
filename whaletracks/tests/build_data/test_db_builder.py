@@ -14,9 +14,6 @@ import unittest
 IGNORE_TEST = False
 TEST_DB_PTH = os.path.join(cn.TEST_DIR, "test_db_builder.db")
 TEST_DB_PCL = os.path.join(cn.TEST_DIR, "test_db_builder.pcl")
-print(cn.PROJECT_DIR)
-print(cn.TEST_DIR)
-print(TEST_DB_PTH)
 # Used save values of the network if they exist
 if os.path.isfile(TEST_DB_PCL):
   BUILDER = pickle.load(open(TEST_DB_PCL, "rb"))
