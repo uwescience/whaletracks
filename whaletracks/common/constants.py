@@ -78,7 +78,8 @@ SCM_CHANNEL = Schema(tablename="channels",
     ])
 SCM_DETECTION = Schema(tablename="detections",
     columns=[
-    CHANNEL_CODE, DURATION, END_TIME, MIN_SIGNAL, PEAK_SIGNAL, PEAK_TIME,
+    NETWORK_CODE, STATION_CODE, DURATION, END_TIME,
+    MIN_SIGNAL, PEAK_SIGNAL, PEAK_TIME,
     START_TIME, STATION_CODE, THRESHOLD
     ])
 SCM_PEAK = Schema(tablename="peaks",
