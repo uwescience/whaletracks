@@ -80,7 +80,7 @@ class DBBuilder(object):
     util.updateDBTable(df, self._db_pth,
         cn.SCM_CHANNEL.tablename)
     util.updateDBTable(self._makeDetectionDF(), self._db_pth,
-        cn.SCM_DETECTION.tablename)
+        cn.SCM_DETECTION.csv_path)
 
   ########## Table building methods. ##############
   def _makeStationDF(self):
@@ -121,7 +121,7 @@ class DBBuilder(object):
     """
     Constructs a dataframe of detection
     """
-    return DBBuilder._readCSV(cn.DETECTION_PTH)
+    return DBBuilder._readCSV(cn.SCM_DETECTION.csv_path)
         
   def _makeChannelDF(self):
     """

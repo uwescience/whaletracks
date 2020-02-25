@@ -49,7 +49,7 @@ CHUNK_LENGTH=HALF_HOUR   #secnods
 def main(STARTTIME, ENDTIME,
          client_code=CLIENT_CODE, f0=F0,
          f1=F1,bdwdth=BDWDTH,dur=DUR,
-         detection_pth=cn.DETECTION_PTH,
+         detection_pth=cn.SCM_DETECTION.csv_path,
          station_ids="*",
          is_restart=True):
     """
