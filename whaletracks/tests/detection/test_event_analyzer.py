@@ -26,6 +26,7 @@ class TestEventAnalyzer(unittest.TestCase):
         values = np.random.randint(-100,100,len(times))*random()
         inds=values<0
         values[inds] = 0
+        #import pdb; pdb.set_trace()
         self.analyzer = EventAnalyzer(times, values, UTCDateTime("2011-12-14T12:00:00.000"),
                                  dur=np.random.randint(2,4)*(times[1]-times[0]), 
                                  prominence=np.mean(values))
