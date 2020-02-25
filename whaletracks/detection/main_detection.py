@@ -33,8 +33,12 @@ CHUNK_FILE = "analyzers.csv"
 CLIENT_CODE = 'IRIS'
 PLOTFLAG = False
 
+#TEST STARTTIME = ("2011-12-14T12:00:00.000")
+#TEST ENDTIME = ("2011-12-14T12:20:00.000")
+
 STARTTIME = ("2011-12-14T12:00:00.000")
-ENDTIME = ("2011-12-14T12:03:00.000")
+ENDTIME = ("2011-12-28T14:00:00.000")
+
 HALF_HOUR = 1800  # in seconds
 CHUNK_LENGTH=HALF_HOUR   #secnods
 
@@ -42,12 +46,12 @@ CHUNK_LENGTH=HALF_HOUR   #secnods
 #endtime=("2012-07-01T12:00:00.000")
 
 
-def main(starttime, endtime,
+def main(STARTTIME, ENDTIME,
          client_code=CLIENT_CODE, f0=F0,
          f1=F1,bdwdth=BDWDTH,dur=DUR,
          detection_pth=cn.DETECTION_PTH,
-         station_codes="*",
-         is_restart=False):
+         station_ids="*",
+         is_restart=True):
     """
     :param UTCDateTime starttime:
     :param UTCDateTime endtime:
@@ -59,18 +63,20 @@ def main(starttime, endtime,
         analyzers = []
         
     client = Client(client_code)
-    utcstart = UTCDateTime(starttime)
-    utcend = UTCDateTime(endtime)
+    utcstart = UTCDateTime(STARTTIME)
+    utcend = UTCDateTime(ENDTIME)
 
     utcstart_chunk = utcstart
     utcend_chunk = utcstart + CHUNK_LENGTH
     
     while utcend > utcstart_chunk:
+        #import pdb; pdb.set_trace()
         try:
-            st_raw=client.get_waveforms(network="7D", station=station_codes, location='*',
+            st_raw=client.get_waveforms(network="7D", station=station_ids, location='*',
                                         channel='BHZ,HHZ', starttime=utcstart_chunk,
                                         endtime=utcend_chunk, attach_response=True)
         except:
+            
             print("WARNING: no data available from input station/times")
             utcstart_chunk=utcstart_chunk+CHUNK_LENGTH
             utcend_chunk=utcend_chunk+CHUNK_LENGTH
@@ -138,7 +144,7 @@ def main(starttime, endtime,
         
     else:
         final_analyzer_df = pd.concat(analyzers)
-        final_analyzer_df.to_csv(detection_pth)
+        final_analyzer_df.to_csv(detection_pth,index=False)
         
     return final_analyzer_df
     

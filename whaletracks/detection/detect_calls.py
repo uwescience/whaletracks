@@ -33,7 +33,7 @@ FIGSIZE = [9, 3]
 FILTER_OFFSET = 10
 
 # Helper functions
-# TODO: change this to median?
+
 def defaultScaleFunction(Sxx):
     vmin=np.median(10*np.log10(Sxx))+0*np.std(10*np.log10(Sxx)) 
     vmax=np.median(10*np.log10(Sxx))+2*np.std(10*np.log10(Sxx)) 
