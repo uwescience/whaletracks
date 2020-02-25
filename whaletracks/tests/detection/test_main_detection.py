@@ -28,7 +28,7 @@ class TestFunctions(unittest.TestCase):
         startime = ("2011-12-14T12:00:00.000")
         endtime = ("2011-12-14T12:20:00.000")
         station_codes = "J28A,J29A"
-        df = main_detection.main(startime, endtime, station_codes=station_codes)
+        df = main_detection.main(startime, endtime, station_ids=station_codes)
         diff = set(COLUMNS).symmetric_difference(df.columns)
         self.assertEqual(len(diff), 0)
         self.assertGreater(len(df), 0)
@@ -38,7 +38,7 @@ class TestFunctions(unittest.TestCase):
         startime = ("2011-12-14T12:00:00.000")
         endtime = ("2011-12-14T12:20:00.000")
         station_codes = "J28Z"
-        df = main_detection.main(startime, endtime, station_codes=station_codes)
+        df = main_detection.main(startime, endtime, station_ids=station_codes)
         self.assertEqual(len(df), 0)
         
         
