@@ -1,3 +1,3 @@
-channel_code, duration, end_time, min_signal, peak_signal, peak_time, start_time, station_code, threshold
-1, 2, 3, 4, 5, 6, 7, 8, 9
-10, 20, 30, 40, 50, 60, 70, 80, 90
+version https://git-lfs.github.com/spec/v1
+oid sha256:c734a75c2e94368ac7497a22172587c02115fc154f5585b98e2aaad6c9aae037
+size 28232800

@@ -11,13 +11,14 @@ import whaletracks.common.constants as cn
 import pandas as pd
 import scipy.signal as sig
 import matplotlib.pyplot as plt
-
+import numpy as np
 
 SECONDS_IN_MINUTE = 60
+EXCLUDED_COLUMNS = [cn.THRESHOLD, cn.STATION_CODE, cn.NETWORK_CODE]
 
 class EventAnalyzer(object):
     
-    def __init__(self, times, values, start_chunk, dur=10, prominence=1.5):
+    def __init__(self, times, values, start_chunk, dur=10, prominence=.5):
         """
         :param list-float times: offsets in seconds
         :param list-float values: values at times
@@ -32,18 +33,17 @@ class EventAnalyzer(object):
             width=(dur/2)*(1/(self.times[1]-self.times[0])),
             prominence=prominence,
             wlen=SECONDS_IN_MINUTE*(1/(self.times[1]-self.times[0])),
-            rel_height=.9)
-        self.df = self._makePeakDF(peak_indicies, peak_properties)
+            rel_height=.7)
+        self.df = self._makeDetectionDF(peak_indicies, peak_properties)
         self.df[cn.THRESHOLD] = prominence
      
-    # FIXME: EventAnalyzer shouldn't know the SCM_DETECTION schema
-    def _makePeakDF(self, peak_indicies, peak_properties):
+    def _makeDetectionDF(self, peak_indicies, peak_properties):
         """
         :param int index: index of peak
-        :return pd.DataFrame: all columns, except cn.THRESHOLD
+        :return pd.DataFrame: all columns, except for EXCLUDED_COLUMNS
         """
-        excludes = [cn.THRESHOLD, cn.STATION_CODE, cn.CHANNEL_CODE]
-        dct = {k: [] for k in cn.SCM_DETECTION.columns if not k in excludes}
+        dct = {k: [] for k in cn.SCM_DETECTION.columns 
+               if not k in EXCLUDED_COLUMNS}
         for index in range(len(peak_indicies)):
             dct[cn.PEAK_TIME].append(self.times[peak_indicies[index]])
             dct[cn.PEAK_SIGNAL].append(peak_properties["prominences"][index])

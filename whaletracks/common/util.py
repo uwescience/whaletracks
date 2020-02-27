@@ -4,6 +4,7 @@ def complexifyString(stg, separator=";"):
   """
   Converts a string representation of complex numbers into
   a list of complex numbers.
+  :param str stg: string of complex numbers
   """
   splits = stg.split(separator)
   if len(splits[0]) > 0:

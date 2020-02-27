@@ -8,9 +8,11 @@ import obspy
 import os
 from obspy.clients.fdsn import Client
 from obspy.core.utcdatetime import UTCDateTime
-from shapely.geometry import Point, Polygon
 import pandas as pd
 import numpy as np
+
+
+UNNAMED_COLUMN = "Unnamed:"  # Bogus column added
 
 ################### HELPER FUNCTIONS ########################
 def _makeChannelID(network_code, station_code, channel_code):
@@ -78,7 +80,7 @@ class DBBuilder(object):
     util.updateDBTable(df, self._db_pth,
         cn.SCM_CHANNEL.tablename)
     util.updateDBTable(self._makeDetectionDF(), self._db_pth,
-        cn.SCM_DETECTION.tablename)
+        cn.SCM_DETECTION.csv_path)
 
   ########## Table building methods. ##############
   def _makeStationDF(self):
@@ -102,11 +104,24 @@ class DBBuilder(object):
     del station_dct[CODE]
     return pd.DataFrame(station_dct)
 
+  @staticmethod
+  def _readCSV(path):
+    """
+    Constructs a dataframe from a CSV file.
+    Some cleanup is done, like removing "Unnamed:" colums.
+    :param str path:
+    """
+    df = pd.read_csv(path)
+    for col in df.columns:
+      if UNNAMED_COLUMN in col:
+        del df[col]
+    return df
+
   def _makeDetectionDF(self):
     """
     Constructs a dataframe of detection
     """
-    return pd.read_csv(cn.DETECTION_PTH)
+    return DBBuilder._readCSV(cn.SCM_DETECTION.csv_path)
         
   def _makeChannelDF(self):
     """
