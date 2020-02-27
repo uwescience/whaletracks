@@ -1,0 +1,4 @@
+whaletracks.db filter=lfs diff=lfs merge=lfs -text
+ALL-StationList.csv filter=lfs diff=lfs merge=lfs -text
+detections.csv filter=lfs diff=lfs merge=lfs -text
+ExampleBlueDetections.csv filter=lfs diff=lfs merge=lfs -text
