@@ -89,11 +89,36 @@ class DBBuilder(object):
     df[cn.START_TIME] = [str(d) for d in df[cn.START_TIME]]
     util.updateDBTable(df, self._db_pth,
         cn.SCM_CHANNEL.tablename)
+    # Add epoch columns, days since 1970 for all columns ending in _TIME
     # Create tables for schemas with csv files
     for schema in cn.SCMS:
         if schema.csv_path is not None:
             df = DBBuilder._readCSV(schema.csv_path)
             util.updateDBTable(df, self._db_pth, schema.tablename)
+
+  def build(self):
+    """
+    Builds all of the database tables.
+    """
+    # Create the dataframes and associate with table names
+    df_dct = {}
+    df_dct[cn.SCM_STATION.tablename] = self._makeStationDF()
+    #
+    df_channel = self._makeChannelDF()
+    df_channel[cn.END_TIME] = [str(d) for d in df_channel[cn.END_TIME]]
+    df_channel[cn.START_TIME] = [str(d) for d in df_channel[cn.START_TIME]]
+    df_dct[cn.SCM_CHANNEL.tablename] = df_channel
+    # Create tables for schemas with csv files
+    for schema in cn.SCMS:
+        if schema.csv_path is not None:
+            df_dct[schema.tablename] = DBBuilder._readCSV(schema.csv_path)
+    # Add epoch columns, days since 1970 for all columns ending in _TIME
+    for df in df_dct.values():
+      util.addEpochColumns(df)
+    # Write the tables
+    for tablename, df in df_dct.items():
+      util.updateDBTable(df, self._db_pth, tablename)
+    
                            
   ########## Table building methods. ##############
   def _makeStationDF(self):
