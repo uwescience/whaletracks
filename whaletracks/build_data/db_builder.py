@@ -79,9 +79,12 @@ class DBBuilder(object):
     df[cn.START_DATE] = [str(d) for d in df[cn.START_DATE]]
     util.updateDBTable(df, self._db_pth,
         cn.SCM_CHANNEL.tablename)
-    util.updateDBTable(self._makeDetectionDF(), self._db_pth,
-        cn.SCM_DETECTION.csv_path)
-
+    # Create tables for schemas with csv files
+    for schema in cn.SCMS:
+        if schema.csv_path is not None:
+            df = DBBuilder._readCSV(schema.csv_path)
+            util.updateDBTable(df, self._db_pth, schema.tablename)
+                           
   ########## Table building methods. ##############
   def _makeStationDF(self):
     """
@@ -116,12 +119,6 @@ class DBBuilder(object):
       if UNNAMED_COLUMN in col:
         del df[col]
     return df
-
-  def _makeDetectionDF(self):
-    """
-    Constructs a dataframe of detection
-    """
-    return DBBuilder._readCSV(cn.SCM_DETECTION.csv_path)
         
   def _makeChannelDF(self):
     """

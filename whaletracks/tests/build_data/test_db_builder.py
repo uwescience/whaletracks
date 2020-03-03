@@ -3,12 +3,9 @@ from whaletracks.build_data.db_builder import DBBuilder
 from common_python.testing import helpers
 
 import copy
-import numpy as np
 import os
 from obspy.core.utcdatetime import UTCDateTime
-import pandas as pd
 import pickle
-import sys
 import unittest
 
 IGNORE_TEST = False

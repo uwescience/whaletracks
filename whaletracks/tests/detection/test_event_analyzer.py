@@ -38,6 +38,7 @@ class TestEventAnalyzer(unittest.TestCase):
                                  dur=4, 
                                  prominence=1.5)
         diff = set(analyzer.df.columns).difference(cn.SCM_DETECTION.columns)
+        diff = diff.difference(event_analyzer.EXCLUDED_COLUMNS)
         self.assertEqual(len(diff), 0)
     
     def testConstructorSophisticated(self):

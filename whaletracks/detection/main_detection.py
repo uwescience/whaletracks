@@ -15,18 +15,18 @@ import scipy.io.wavfile as siow
 import numpy as np
 import scipy.signal as sig
 import matplotlib.colors as color
-import matplotlib.animation as animation
-import datetime
 import whaletracks.detection.detect_calls as detect
 from whaletracks.detection.event_analyzer import EventAnalyzer
 import pandas as pd
 import whaletracks.common.constants as cn
-
+from datetime import datetime
+import sys
 
 F0 = 15.7 #average start frequency
 F1 = 14.6 #average end frequency
 BDWDTH = .7 # average bandwidth
 DUR = 10 #average duration
+
 
 CHUNK_FILE = "analyzers.csv"
 
@@ -36,8 +36,8 @@ PLOTFLAG = False
 #TEST STARTTIME = ("2011-12-14T12:00:00.000")
 #TEST ENDTIME = ("2011-12-14T12:20:00.000")
 
-STARTTIME = ("2011-12-14T12:00:00.000")
-ENDTIME = ("2011-12-28T14:00:00.000")
+STARTTIME = ("2012-01-17T08:30:00.000")
+ENDTIME = ("2012-07-01T00:00:00.000")
 
 HALF_HOUR = 1800  # in seconds
 CHUNK_LENGTH=HALF_HOUR   #secnods
@@ -49,8 +49,8 @@ CHUNK_LENGTH=HALF_HOUR   #secnods
 def main(STARTTIME, ENDTIME,
          client_code=CLIENT_CODE, f0=F0,
          f1=F1,bdwdth=BDWDTH,dur=DUR,
-         detection_pth=cn.SCM_DETECTION.csv_path,
-         station_ids="*",
+         detection_pth=cn.SCM_DETECTION.csv_path, 
+         chunk_pth=CHUNK_FILE,station_ids="*",
          is_restart=True):
     """
     :param UTCDateTime starttime:
@@ -71,16 +71,30 @@ def main(STARTTIME, ENDTIME,
     
     while utcend > utcstart_chunk:
         #import pdb; pdb.set_trace()
-        try:
-            st_raw=client.get_waveforms(network="7D", station=station_ids, location='*',
-                                        channel='BHZ,HHZ', starttime=utcstart_chunk,
-                                        endtime=utcend_chunk, attach_response=True)
-        except:
-            
+        print(utcstart_chunk)
+        
+        retry=0
+        st_raw_exist=False
+        
+        while st_raw_exist == False and retry < 5:
+            try:
+                st_raw=client.get_waveforms(network="7D", station=station_ids, location='*',
+                                            channel='BHZ,HHZ', starttime=utcstart_chunk,
+                                            endtime=utcend_chunk, attach_response=True)
+                st_raw_exist=True
+                retry=5
+            except:
+                retry=retry+1
+                st_raw_exist=False
+                print("Client failed: Retry " + str(retry) + " of 5 attempts")
+                
+                
+        if st_raw_exist == False:
             print("WARNING: no data available from input station/times")
             utcstart_chunk=utcstart_chunk+CHUNK_LENGTH
             utcend_chunk=utcend_chunk+CHUNK_LENGTH
             continue
+                
             
         st_raw.detrend(type="demean")
         st_raw.detrend(type="linear")
@@ -134,7 +148,9 @@ def main(STARTTIME, ENDTIME,
         
         analyzers.extend(analyzers_chunk)
         new_df = pd.concat(analyzers)
-        new_df.to_csv(CHUNK_FILE, index=False)
+        new_df.to_csv(chunk_pth, index=False)
+        
+        
         
     #import pdb; pdb.set_trace()  
     
