@@ -13,6 +13,16 @@ import numpy as np
 
 
 UNNAMED_COLUMN = "Unnamed:"  # Bogus column added
+CREATION_DATE = "creation_date"
+END_DATE = "end_date"
+START_DATE = "start_date"
+TERMINATION_DATE = "termination_date"
+STATION_SWAPS = [
+    (CREATION_DATE, cn.CREATION_TIME),
+    (END_DATE, cn.END_TIME),
+    (START_DATE, cn.START_TIME),
+    (TERMINATION_DATE, cn.TERMINATION_TIME),
+    ]
 
 ################### HELPER FUNCTIONS ########################
 def _makeChannelID(network_code, station_code, channel_code):
@@ -75,8 +85,8 @@ class DBBuilder(object):
     util.updateDBTable(self._makeStationDF(), self._db_pth,
         cn.SCM_STATION.tablename)
     df = self._makeChannelDF()
-    df[cn.END_DATE] = [str(d) for d in df[cn.END_DATE]]
-    df[cn.START_DATE] = [str(d) for d in df[cn.START_DATE]]
+    df[cn.END_TIME] = [str(d) for d in df[cn.END_TIME]]
+    df[cn.START_TIME] = [str(d) for d in df[cn.START_TIME]]
     util.updateDBTable(df, self._db_pth,
         cn.SCM_CHANNEL.tablename)
     # Create tables for schemas with csv files
@@ -95,6 +105,10 @@ class DBBuilder(object):
     attributes.remove(cn.NETWORK_CODE)
     attributes.remove(cn.STATION_CODE)
     attributes.append(CODE)
+    # Old key names are used in the data
+    for key_old, key_new in STATION_SWAPS:
+      attributes.remove(key_new)
+      attributes.append(key_old)
     #
     station_count = self.network.total_number_of_stations
     station_dct = {k: [] for k in attributes}
@@ -105,6 +119,9 @@ class DBBuilder(object):
     station_dct[cn.NETWORK_CODE] = np.repeat(self._network_code,
         len(station_dct[cn.STATION_CODE]))
     del station_dct[CODE]
+    for key_old, key_new in STATION_SWAPS:
+      station_dct[key_new] = station_dct[key_old]
+      del station_dct[key_old]
     return pd.DataFrame(station_dct)
 
   @staticmethod
@@ -138,12 +155,12 @@ class DBBuilder(object):
             self.network.code, station.code, channel.code))
         channel_dct[cn.CHANNEL_TYPES].append(" ".join(channel.types))
         channel_dct[cn.DIP].append(channel.dip)
-        channel_dct[cn.END_DATE].append(channel.end_date)
+        channel_dct[cn.END_TIME].append(channel.end_date)
         channel_dct[cn.POLES].append(poles)
         channel_dct[cn.SENSITIVITY_FREQUENCY].append(channel.response.instrument_sensitivity.frequency)
         channel_dct[cn.SENSITIVITY_VALUE].append(channel.response.instrument_sensitivity.value)
         channel_dct[cn.SENSOR].append(channel.sensor.description)
-        channel_dct[cn.START_DATE].append(channel.start_date)
+        channel_dct[cn.START_TIME].append(channel.start_date)
         channel_dct[cn.STATION_ID].append(_makeStationID(
             self.network.code, station.code))
         channel_dct[cn.ZEROES].append(zeroes)

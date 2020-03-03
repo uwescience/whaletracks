@@ -48,46 +48,44 @@ CHANNEL_CODE = "channel_code"
 CHANNEL_ID = "channel_id"  # NETWORK_CODE.STATION_CODE.CHANNEL_CODE
 CHANNEL_TYPES = "channel_types"
 CODE = "code"
-CREATION_DATE = "creation_date"
+CREATION_TIME = "creation_time"  # UTC datetime
 DIP = "dip"
 DURATION = "duration"
 ELEVATION  = 'elevation'
-END_DATE  = 'end_date'
-END_TIME = 'end_time'
+END_TIME  = 'end_time'  # UTC datetime
 EVENT = "event"
 GAIN = "gain"
 LATITUDE  = 'latitude'
 LONGITUDE  = 'longitude'
 MIN_SIGNAL = "min_signal"
 NETWORK = "network"
-NETWORK_CODE = "network_code"
+NETWORK_CODE = "network_code"  # str
 PEAK_SIGNAL = "peak_signal"
-PEAK_TIME = "peak_time"
+PEAK_TIME = "peak_time"  # UTC datetime
 POLES = "poles"  # semicolon separated values of immaginary numbers
 SENSITIVITY_FREQUENCY = "sensitivity_frequency"
 SENSITIVITY_VALUE = "sensitivity_value"
 SENSOR = "sensor"
-START_TIME = "start_time"
-START_DATE  = 'start_date'
-STATION_CODE = "station_code"
+START_TIME = "start_time"  #UTC datetime
+STATION_CODE = "station_code"  # str
 STATION_ID = "station_id"  # NETWORK_CODE.STATION_CODE
 THRESHOLD = "threshold"
-TERMINATION_DATE  = 'termination_date'
+TERMINATION_TIME  = 'termination_time'  # UTC datetime
 TOTAL_NUMBER_OF_CHANNELS  = 'total_number_of_channels'
 VALUE = "value"
 ZEROES = "zeroes" # semicolon separated values of immaginary numbers
 
 # Table schemas
 SCM_STATION = Schema(tablename="stations",
-    columns=[CREATION_DATE, ELEVATION, END_DATE, LATITUDE,
-    LONGITUDE, NETWORK_CODE, STATION_CODE, START_DATE, TERMINATION_DATE,
+    columns=[CREATION_TIME, ELEVATION, END_TIME, LATITUDE,
+    LONGITUDE, NETWORK_CODE, STATION_CODE, START_TIME, TERMINATION_TIME,
     TOTAL_NUMBER_OF_CHANNELS],csv_path=None)
 SCHEMA.append(SCM_STATION.tablename, SCM_STATION.columns)
 
 SCM_CHANNEL = Schema(tablename="channels",
-    columns=[AZIMUTH, CHANNEL_ID, CHANNEL_TYPES, DIP, END_DATE, 
+    columns=[AZIMUTH, CHANNEL_ID, CHANNEL_TYPES, DIP, END_TIME, 
     POLES, SENSITIVITY_FREQUENCY, 
-    SENSITIVITY_VALUE, SENSOR, START_DATE, STATION_ID, ZEROES],
+    SENSITIVITY_VALUE, SENSOR, START_TIME, STATION_ID, ZEROES],
     csv_path=None)
 SCHEMA.append(SCM_CHANNEL.tablename, SCM_CHANNEL.columns)
 
