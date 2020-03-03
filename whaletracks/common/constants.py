@@ -9,6 +9,18 @@ import sys
 Schema = collections.namedtuple("Schema",
     "tablename columns csv_path")
 
+class SchemaContainer(object):
+    def __init__(self):
+        self.schemas = []
+        
+    def append(self, tablename, columns, csv_path=None):
+        schema = Schema(tablename=tablename, columns=columns, csv_path=csv_path)
+        self.schemas.append(schema)
+        
+SCHEMA = SchemaContainer()
+        
+        
+
 PROJECT_NAME = "whaletracks"
 
 # PATHS
@@ -66,36 +78,30 @@ VALUE = "value"
 ZEROES = "zeroes" # semicolon separated values of immaginary numbers
 
 # Table schemas
-SCM_STATION = Schema(
-    tablename="stations",
-    columns= [CREATION_DATE, ELEVATION, END_DATE, LATITUDE,
+SCM_STATION = Schema(tablename="stations",
+    columns=[CREATION_DATE, ELEVATION, END_DATE, LATITUDE,
     LONGITUDE, NETWORK_CODE, STATION_CODE, START_DATE, TERMINATION_DATE,
-    TOTAL_NUMBER_OF_CHANNELS],
-    csv_path=None,
-    )
+    TOTAL_NUMBER_OF_CHANNELS],csv_path=None)
+SCHEMA.append(SCM_STATION.tablename, SCM_STATION.columns)
+
 SCM_CHANNEL = Schema(tablename="channels",
-    columns = [
-    AZIMUTH, CHANNEL_ID, CHANNEL_TYPES, DIP, END_DATE, 
+    columns=[AZIMUTH, CHANNEL_ID, CHANNEL_TYPES, DIP, END_DATE, 
     POLES, SENSITIVITY_FREQUENCY, 
     SENSITIVITY_VALUE, SENSOR, START_DATE, STATION_ID, ZEROES],
-    csv_path=None,
-    )
+    csv_path=None)
+SCHEMA.append(SCM_CHANNEL.tablename, SCM_CHANNEL.columns)
+
 SCM_DETECTION = Schema(tablename="detections",
-    columns=[
-    NETWORK_CODE, STATION_CODE, DURATION, END_TIME,
+    columns=[NETWORK_CODE, STATION_CODE, DURATION, END_TIME,
     MIN_SIGNAL, PEAK_SIGNAL, PEAK_TIME,
     START_TIME, STATION_CODE, THRESHOLD],
-    csv_path=os.path.join(DATA_DIR, "detections.csv"),
-    )
-SCM_PEAK = Schema(tablename="peaks",
-    columns=[
-    NETWORK_CODE, STATION_CODE, START_TIME, END_TIME, VALUE, EVENT],
-    csv_path=None,
-    )
-SCM_STATION_QUALITY = Schema(tablename="station_quality",
-    columns=[
-    NETWORK_CODE, STATION_CODE, START_TIME, END_TIME],
-    csv_path=None,
-    )
-SCMS = [SCM_STATION, SCM_CHANNEL, SCM_DETECTION]
+    csv_path=os.path.join(DATA_DIR, 'detections.csv'))
+SCHEMA.append(SCM_DETECTION.tablename, SCM_DETECTION.columns, csv_path=SCM_DETECTION.csv_path)
+
+SCHEMA.append("peaks",
+    [NETWORK_CODE, STATION_CODE, START_TIME, END_TIME, VALUE, EVENT])
+SCHEMA.append("station_quality",
+    [NETWORK_CODE, STATION_CODE, START_TIME, END_TIME])
+
+SCMS = SCHEMA.schemas
 TABLES = [s.tablename for s in SCMS]
