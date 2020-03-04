@@ -58,7 +58,8 @@ class TestDBBuilder (unittest.TestCase):
       return
     df = self.builder._makeChannelDF()
     self.assertTrue(helpers.isValidDataFrame(df,
-        expected_columns=cn.SCM_CHANNEL.columns))
+        expected_columns=cn.SCM_CHANNEL.columns,
+        nan_columns=cn.SCM_CHANNEL.columns))
 
 
 

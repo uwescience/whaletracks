@@ -3,6 +3,7 @@
 from common_python.database import database_util as util
 import whaletracks.common. constants as cn
 
+import copy
 import matplotlib.pyplot as plt
 import obspy
 import os
@@ -15,6 +16,7 @@ import numpy as np
 UNNAMED_COLUMN = "Unnamed:"  # Bogus column added
 CREATION_DATE = "creation_date"
 END_DATE = "end_date"
+EPOCH = "_epoch"
 START_DATE = "start_date"
 TERMINATION_DATE = "termination_date"
 STATION_SWAPS = [
@@ -23,6 +25,26 @@ STATION_SWAPS = [
     (START_DATE, cn.START_TIME),
     (TERMINATION_DATE, cn.TERMINATION_TIME),
     ]
+
+def fillEpochColumns(container):
+  """
+  Populates the _EPOCH columns with None
+  """
+  ENDING = "_time"
+  if isinstance(container, pd.DataFrame):
+    columns = list(container.columns)
+  elif isinstance(container, dict):
+    columns = list(container.keys())
+  for col in columns:
+    if container[col] is not None:
+      if len(container[col]) > 0:
+        length = len(container[col])
+    if EPOCH in col:
+      container[col] = list(np.repeat(None, length))
+    if ENDING in col:
+      new_col = col[0:len(col)-len(ENDING)]
+      new_col = "%s_epoch" % new_col
+      container[new_col] = list(np.repeat(None, length))
 
 ################### HELPER FUNCTIONS ########################
 def _makeChannelID(network_code, station_code, channel_code):
@@ -82,24 +104,6 @@ class DBBuilder(object):
     """
     Builds all of the database tables.
     """
-    util.updateDBTable(self._makeStationDF(), self._db_pth,
-        cn.SCM_STATION.tablename)
-    df = self._makeChannelDF()
-    df[cn.END_TIME] = [str(d) for d in df[cn.END_TIME]]
-    df[cn.START_TIME] = [str(d) for d in df[cn.START_TIME]]
-    util.updateDBTable(df, self._db_pth,
-        cn.SCM_CHANNEL.tablename)
-    # Add epoch columns, days since 1970 for all columns ending in _TIME
-    # Create tables for schemas with csv files
-    for schema in cn.SCMS:
-        if schema.csv_path is not None:
-            df = DBBuilder._readCSV(schema.csv_path)
-            util.updateDBTable(df, self._db_pth, schema.tablename)
-
-  def build(self):
-    """
-    Builds all of the database tables.
-    """
     # Create the dataframes and associate with table names
     df_dct = {}
     df_dct[cn.SCM_STATION.tablename] = self._makeStationDF()
@@ -110,11 +114,13 @@ class DBBuilder(object):
     df_dct[cn.SCM_CHANNEL.tablename] = df_channel
     # Create tables for schemas with csv files
     for schema in cn.SCMS:
-        if schema.csv_path is not None:
-            df_dct[schema.tablename] = DBBuilder._readCSV(schema.csv_path)
+      if schema.csv_path is not None:
+        df_dct[schema.tablename] = DBBuilder._readCSV(schema.csv_path)
     # Add epoch columns, days since 1970 for all columns ending in _TIME
     for df in df_dct.values():
-      util.addEpochColumns(df)
+      #util.addEpochColumns(df)
+      # Temporary code to fill in EPOCH columns
+      fillEpochColumns(df)
     # Write the tables
     for tablename, df in df_dct.items():
       util.updateDBTable(df, self._db_pth, tablename)
@@ -134,6 +140,12 @@ class DBBuilder(object):
     for key_old, key_new in STATION_SWAPS:
       attributes.remove(key_new)
       attributes.append(key_old)
+    # Remove generated columsn
+    new_attributes = []
+    for col in attributes:
+      if not EPOCH in col:
+        new_attributes.append(col)
+    attributes = new_attributes
     #
     station_count = self.network.total_number_of_stations
     station_dct = {k: [] for k in attributes}
@@ -147,6 +159,7 @@ class DBBuilder(object):
     for key_old, key_new in STATION_SWAPS:
       station_dct[key_new] = station_dct[key_old]
       del station_dct[key_old]
+    fillEpochColumns(station_dct)
     return pd.DataFrame(station_dct)
 
   @staticmethod
@@ -171,6 +184,12 @@ class DBBuilder(object):
           
     """
     channel_dct = {k: [] for k in cn.SCM_CHANNEL.columns}
+    # Remove generated columns
+    new_dct = {}
+    for key in channel_dct.keys():
+      if not EPOCH in key:
+        new_dct[key] = channel_dct[key]
+    channel_dct = new_dct
     for station in self.network:
       station_id = _makeStationID(self.network.code, station.code)
       for channel in station:
@@ -189,6 +208,7 @@ class DBBuilder(object):
         channel_dct[cn.STATION_ID].append(_makeStationID(
             self.network.code, station.code))
         channel_dct[cn.ZEROES].append(zeroes)
+    fillEpochColumns(channel_dct)
     return pd.DataFrame(channel_dct)
 
 
