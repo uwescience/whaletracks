@@ -37,7 +37,7 @@ class DBAccessor(object):
   def df_channel(self):
     df = self._readTable(cn.SCM_CHANNEL.tablename)
     # Convert datetimes back to string
-    for col in [cn.START_DATE, cn.END_DATE]:
+    for col in [cn.START_TIME, cn.END_TIME]:
       df[col] = [UTCDateTime(t) for t in df[col]]
     for col in [cn.POLES, cn.ZEROES]:
       complexes = []
