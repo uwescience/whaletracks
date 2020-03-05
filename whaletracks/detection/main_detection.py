@@ -20,7 +20,6 @@ from whaletracks.detection.event_analyzer import EventAnalyzer
 import pandas as pd
 import whaletracks.common.constants as cn
 from datetime import datetime
-import sys
 
 F0 = 15.7 #average start frequency
 F1 = 14.6 #average end frequency
@@ -36,7 +35,7 @@ PLOTFLAG = False
 #TEST STARTTIME = ("2011-12-14T12:00:00.000")
 #TEST ENDTIME = ("2011-12-14T12:20:00.000")
 
-STARTTIME = ("2012-01-17T08:30:00.000")
+STARTTIME = ("2012-02-07T02:30:00.000")
 ENDTIME = ("2012-07-01T00:00:00.000")
 
 HALF_HOUR = 1800  # in seconds
