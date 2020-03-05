@@ -42,6 +42,7 @@ sys.path.insert(0, PROJECT_CODE)
 sys.path.insert(0, COMMON_CODE)
 
 # Columns
+# Columns ended in _EPOCH populated automatically in db_builder
 AZIMUTH = "azimuth"
 CHANNEL = "channel"
 CHANNEL_CODE = "channel_code"

@@ -26,25 +26,22 @@ STATION_SWAPS = [
     (TERMINATION_DATE, cn.TERMINATION_TIME),
     ]
 
-def fillEpochColumns(container):
+def fillEpochColumns(df):
   """
-  Populates the _EPOCH columns with None
+  Temporary code that populates the _EPOCH columns with None
+  :param pd.DataFrame df: some columns have "_time"
   """
   ENDING = "_time"
-  if isinstance(container, pd.DataFrame):
-    columns = list(container.columns)
-  elif isinstance(container, dict):
-    columns = list(container.keys())
-  for col in columns:
-    if container[col] is not None:
-      if len(container[col]) > 0:
-        length = len(container[col])
+  for col in df.columns:
+    if df[col] is not None:
+      if len(df[col]) > 0:
+        length = len(df[col])
     if EPOCH in col:
-      container[col] = list(np.repeat(None, length))
+      df[col] = list(np.repeat(None, length))
     if ENDING in col:
       new_col = col[0:len(col)-len(ENDING)]
       new_col = "%s_epoch" % new_col
-      container[new_col] = list(np.repeat(None, length))
+      df[new_col] = list(np.repeat(None, length))
 
 ################### HELPER FUNCTIONS ########################
 def _makeChannelID(network_code, station_code, channel_code):
@@ -140,12 +137,10 @@ class DBBuilder(object):
     for key_old, key_new in STATION_SWAPS:
       attributes.remove(key_new)
       attributes.append(key_old)
-    # Remove generated columsn
-    new_attributes = []
-    for col in attributes:
-      if not EPOCH in col:
-        new_attributes.append(col)
-    attributes = new_attributes
+    # Remove EPOCH columns since they are generated
+    for col in list(attributes):
+      if EPOCH in col:
+        attributes.remove(col)
     #
     station_count = self.network.total_number_of_stations
     station_dct = {k: [] for k in attributes}
@@ -159,7 +154,7 @@ class DBBuilder(object):
     for key_old, key_new in STATION_SWAPS:
       station_dct[key_new] = station_dct[key_old]
       del station_dct[key_old]
-    fillEpochColumns(station_dct)
+    #fillEpochColumns(station_dct)
     return pd.DataFrame(station_dct)
 
   @staticmethod
@@ -185,11 +180,11 @@ class DBBuilder(object):
     """
     channel_dct = {k: [] for k in cn.SCM_CHANNEL.columns}
     # Remove generated columns
-    new_dct = {}
-    for key in channel_dct.keys():
-      if not EPOCH in key:
-        new_dct[key] = channel_dct[key]
-    channel_dct = new_dct
+    keys = list(channel_dct.keys())
+    for key in keys:
+      if EPOCH in key:
+        del channel_dct[key]
+    #
     for station in self.network:
       station_id = _makeStationID(self.network.code, station.code)
       for channel in station:
@@ -208,7 +203,7 @@ class DBBuilder(object):
         channel_dct[cn.STATION_ID].append(_makeStationID(
             self.network.code, station.code))
         channel_dct[cn.ZEROES].append(zeroes)
-    fillEpochColumns(channel_dct)
+    #fillEpochColumns(channel_dct)
     return pd.DataFrame(channel_dct)
 
 

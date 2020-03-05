@@ -1,5 +1,5 @@
 import whaletracks.common.constants as cn
-from whaletracks.build_data.db_builder import DBBuilder
+from whaletracks.build_data import db_builder
 from common_python.testing import helpers
 
 import copy
@@ -15,7 +15,7 @@ TEST_DB_PCL = os.path.join(cn.TEST_DIR, "test_db_builder.pcl")
 if os.path.isfile(TEST_DB_PCL):
   BUILDER = pickle.load(open(TEST_DB_PCL, "rb"))
 else:
-  BUILDER = DBBuilder(db_pth=TEST_DB_PTH,
+  BUILDER = db_builder.DBBuilder(db_pth=TEST_DB_PTH,
       start_time=UTCDateTime("2015-01-01"),
       end_time=UTCDateTime("2015-01-10"))
   pickle.dump(BUILDER, open(TEST_DB_PCL, "wb"))
@@ -57,9 +57,11 @@ class TestDBBuilder (unittest.TestCase):
     if IGNORE_TEST:
       return
     df = self.builder._makeChannelDF()
+    expected_columns = [c for c in cn.SCM_CHANNEL.columns
+        if not db_builder.EPOCH in c]
     self.assertTrue(helpers.isValidDataFrame(df,
-        expected_columns=cn.SCM_CHANNEL.columns,
-        nan_columns=cn.SCM_CHANNEL.columns))
+        expected_columns=expected_columns,
+        nan_columns=expected_columns))
 
 
 
