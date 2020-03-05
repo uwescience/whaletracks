@@ -7,6 +7,7 @@ import os
 import pandas as pd
 import sys
 import unittest
+from obspy import UTCDateTime
 
 IGNORE_TEST = False
 
@@ -39,6 +40,26 @@ class TestFunctions (unittest.TestCase):
           res=j-1
           
           self.assertEqual(sort_result[res],result[res])
+          
+          
+  def testDatetimeToEpoch(self):
+     
+      detlist = ['2011-12-24T00:15:28.452000Z',
+                 '2011-12-24T00:15:56.612000Z',
+                 '2011-12-24T00:22:44.164000Z',
+                 '2011-12-24T00:24:57.028000Z',
+                 '2011-12-24T00:27:11.428000Z']
+      
+      datetime_list=UTCDateTime.
+      result = util.datestrToEpoch(detlist)
+      self.assertEqual(len(detlist),len(result))
+      sort_result=np.sort(result)
+       
+      for j in range(1,len(result)+1):
+          res=j-1
+          
+          self.assertEqual(sort_result[res],result[res])        
+          
 
   def testAddEpochColumns(self):
        

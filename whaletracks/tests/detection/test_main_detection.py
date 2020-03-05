@@ -39,10 +39,11 @@ class TestFunctions(unittest.TestCase):
     def testMain1(self):
         self.assertFalse(os.path.isfile(TEST_DETECT_PTH))
         self.assertFalse(os.path.isfile(TEST_CHUNK_PTH))
-    
+        
         startime = ("2011-12-14T12:00:00.000")
         endtime = ("2011-12-14T12:20:00.000")
         station_ids = "J28A,J29A"
+        #import pdb; pdb.set_trace()
         df = main_detection.main(startime, endtime,
             station_ids=station_ids,detection_pth=TEST_DETECT_PTH,
             chunk_pth=TEST_CHUNK_PTH)

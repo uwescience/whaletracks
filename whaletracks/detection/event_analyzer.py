@@ -12,6 +12,8 @@ import pandas as pd
 import scipy.signal as sig
 import matplotlib.pyplot as plt
 import numpy as np
+from obspy import UTCDateTime
+from whaletracks.common import util
 
 SECONDS_IN_MINUTE = 60
 EXCLUDED_COLUMNS = [cn.THRESHOLD, cn.STATION_CODE, cn.NETWORK_CODE]
@@ -52,8 +54,12 @@ class EventAnalyzer(object):
             dct[cn.END_TIME].append(
                     self.times[peak_properties["right_ips"].astype(int)[index]])
             dct[cn.MIN_SIGNAL].append(peak_properties["width_heights"][index])
+            dct[cn.END_EPOCH].append(util.datetimeToEpoch(
+                    self.times[peak_properties["right_ips"].astype(int)[index]]))
             dct[cn.DURATION].append(self.times[peak_properties["right_ips"].astype(int)[index]]-
                                  self.times[peak_properties["left_ips"].astype(int)[index]])
+        
+        import pdb; pdb.set_trace()
         return pd.DataFrame(dct)
         
         

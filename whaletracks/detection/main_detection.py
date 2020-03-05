@@ -128,7 +128,7 @@ def main(STARTTIME, ENDTIME,
             
             [times, values]=detect.xcorr_log(t,f_sub,Sxx_sub,tvec,fvec,BlueKernel, plotflag=PLOTFLAG)
             
-            
+            #import pdb; pdb.set_trace()
             analyzer_j = EventAnalyzer(times, values, utcstart_chunk)
             
             station_codes = np.repeat(tr_filt.stats.station,analyzer_j.df.shape[0])
