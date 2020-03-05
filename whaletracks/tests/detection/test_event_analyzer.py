@@ -5,7 +5,6 @@ Created on Thu Jan 30 11:53:17 2020
 
 @author: wader
 """
-
 from whaletracks.detection.event_analyzer import EventAnalyzer
 from whaletracks.detection import event_analyzer 
 import whaletracks.common.constants as cn

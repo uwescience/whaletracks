@@ -54,6 +54,9 @@ class EventAnalyzer(object):
             dct[cn.MIN_SIGNAL].append(peak_properties["width_heights"][index])
             dct[cn.DURATION].append(self.times[peak_properties["right_ips"].astype(int)[index]]-
                                  self.times[peak_properties["left_ips"].astype(int)[index]])
+            dct[cn.PEAK_EPOCH] = list(np.repeat(None, len(dct[cn.PEAK_TIME])))
+            dct[cn.START_EPOCH] = list(np.repeat(None, len(dct[cn.START_TIME])))
+            dct[cn.END_EPOCH] = list(np.repeat(None, len(dct[cn.END_TIME])))
         return pd.DataFrame(dct)
         
         

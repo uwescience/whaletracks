@@ -7,6 +7,7 @@ Created on Thu Jan 30 11:53:17 2020
 """
 
 from whaletracks.detection import main_detection
+from whaletracks.build_data import db_builder
 import whaletracks.common.constants as cn
 import os
 import numpy as np
@@ -46,7 +47,9 @@ class TestFunctions(unittest.TestCase):
         df = main_detection.main(startime, endtime,
             station_ids=station_ids,detection_pth=TEST_DETECT_PTH,
             chunk_pth=TEST_CHUNK_PTH)
-        diff = set(COLUMNS).symmetric_difference(df.columns)
+        diff = list(set(COLUMNS).symmetric_difference(df.columns))
+        diff1 = list(diff)
+        [diff.remove(c) for c in diff1 if db_builder.EPOCH in c]
         self.assertEqual(len(diff), 0)
         self.assertGreater(len(df), 0)
         self.assertTrue(os.path.isfile(TEST_DETECT_PTH))
