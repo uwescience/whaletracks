@@ -54,8 +54,7 @@ class EventAnalyzer(object):
             dct[cn.END_TIME].append(
                     self.times[peak_properties["right_ips"].astype(int)[index]])
             dct[cn.MIN_SIGNAL].append(peak_properties["width_heights"][index])
-            dct[cn.END_EPOCH].append(util.datetimeToEpoch(
-                    self.times[peak_properties["right_ips"].astype(int)[index]]))
+            
             dct[cn.DURATION].append(self.times[peak_properties["right_ips"].astype(int)[index]]-
                                  self.times[peak_properties["left_ips"].astype(int)[index]])
             dct[cn.PEAK_EPOCH] = list(np.repeat(None, len(dct[cn.PEAK_TIME])))
