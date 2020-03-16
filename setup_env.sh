@@ -1,6 +1,6 @@
 #! /bin/bash
 # Sets up the conda environment whaletracks
-NAME="whalet"
+NAME="whaletracks"
 # Install LFS
 # https://github.com/git-lfs/git-lfs/wiki/Installation
 sudo apt install curl

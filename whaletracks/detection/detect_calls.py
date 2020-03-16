@@ -91,6 +91,7 @@ def plotwav(samp, data, filt_type='bandpass', filt_freqlim=[8, 17],
     #plot spectrogram on lower axis
     [f, t, Sxx] = sig.spectrogram(filtered_data, int(samp), 
     window_type,int(samp*window_size),int(samp*window_size*overlap))
+    
     if plotflag == True:
         cmap = plt.get_cmap('magma')
         vmin, vmax = scale_func(Sxx)
@@ -100,6 +101,9 @@ def plotwav(samp, data, filt_type='bandpass', filt_freqlim=[8, 17],
         plt.ylabel('Frequency [Hz]')
         plt.xlabel('Time [sec]')
         plt.ylim(ylim)
+        plt.show(PLT_TIMESERIES)
+        plt.clf()
+        
     return [f, t, Sxx]
 
 
@@ -151,7 +155,9 @@ def buildkernel(f0, f1, bdwdth, dur, f, t, samp, plotflag=True,kernel_lims=defau
         plt.gca().set_aspect('equal')
         plt.colorbar()
         plt.title('Blue whale B-call kernel')
-
+        plt.show(PLT_KERNEL)
+        plt.clf()
+        
     return [tvec, fvec_sub, BlueKernel, freq_inds]
 
 
@@ -307,7 +313,8 @@ def xcorr_log(t,f,Sxx,tvec,fvec,BlueKernel,plotflag=True,scale_func=defaultScale
         ax1.set_xticks([])
         #ax1.set_xlabel('Time [seconds]')
         fig.tight_layout()
-        fig
+        plt.show(PLT_SCORE)
+        plt.clf()
     return  [t_scale, CorrVal_scale] 
 
     #plt.savefig('Spectrogram_scores.png')

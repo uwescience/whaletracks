@@ -21,22 +21,30 @@ import pandas as pd
 import whaletracks.common.constants as cn
 from datetime import datetime
 
-F0 = 15.7 #average start frequency
-F1 = 14.6 #average end frequency
-BDWDTH = .7 # average bandwidth
-DUR = 10 #average duration
+#Blue whale B-call characteristics
+#F0 = 15.7 #average start frequency
+#F1 = 14.6 #average end frequency
+#BDWDTH = .7 # average bandwidth
+#DUR = 10 #average duration
+
+#Blue whale A-call characteristics
+F0 = 14.5 #average start frequency
+F1 = 14.2 #average end frequency
+BDWDTH = .5 # average bandwidth
+DUR = 20 #average duration
 
 
-CHUNK_FILE = "analyzers.csv"
+
+CHUNK_FILE = "analyzers_test.csv"
 
 CLIENT_CODE = 'IRIS'
-PLOTFLAG = False
+PLOTFLAG = True
 
-#TEST STARTTIME = ("2011-12-14T12:00:00.000")
-#TEST ENDTIME = ("2011-12-14T12:20:00.000")
+STARTTIME = ("2011-12-14T11:00:00.000")
+ENDTIME = ("2011-12-14T11:20:00.000")
 
-STARTTIME = ("2012-04-16T01:30:00.000")
-ENDTIME = ("2012-07-01T00:00:00.000")
+#STARTTIME = ("2012-04-25T03::30:00.000")
+#ENDTIME = ("2012-04-29T06:30:00.000")
 
 HALF_HOUR = 1800  # in seconds
 CHUNK_LENGTH=HALF_HOUR   #secnods
@@ -138,7 +146,7 @@ def main(STARTTIME, ENDTIME,
             
             analyzers_chunk.append(analyzer_j.df)
             
-            #analyzer_j.plot()
+            analyzer_j.plot()
             
             
         utcstart_chunk=utcstart_chunk+CHUNK_LENGTH
