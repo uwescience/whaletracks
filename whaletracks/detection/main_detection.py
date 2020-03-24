@@ -22,16 +22,16 @@ import whaletracks.common.constants as cn
 from datetime import datetime
 
 #Blue whale B-call characteristics
-#F0 = 15.7 #average start frequency
-#F1 = 14.6 #average end frequency
-#BDWDTH = .7 # average bandwidth
-#DUR = 10 #average duration
+F0 = 15.7 #average start frequency
+F1 = 14.6 #average end frequency
+BDWDTH = .7 # average bandwidth
+DUR = 10 #average duration
 
 #Blue whale A-call characteristics
-F0 = 14.5 #average start frequency
-F1 = 14.2 #average end frequency
-BDWDTH = .5 # average bandwidth
-DUR = 20 #average duration
+#F0 = 14.5 #average start frequency
+#F1 = 14.2 #average end frequency
+#BDWDTH = .5 # average bandwidth
+#DUR = 20 #average duration
 
 
 
