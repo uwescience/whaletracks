@@ -41,7 +41,7 @@ def datestrToEpoch(datestrs,dateformat='%Y-%m-%dT%H:%M:%S.%fZ'):
         
     return epochlist
 
-def datetimeToEpoch(UTCdatetime):
+def datetimeToEpoch(UTCdatetime_list):
     """
     Converts list of datestrings in UTCDateTime format
     into epoch time (seconds elapsed since 01-01-1970)
@@ -54,9 +54,9 @@ def datetimeToEpoch(UTCdatetime):
     SECONDS_IN_DAY=86400
     datetime_epochstart = datetime.strptime('1970-01-01T00:00:00.00Z',
                                             '%Y-%m-%dT%H:%M:%S.%fZ')
-    for k in range(1,len(UTCdatetime)+1):
+    for k in range(1,len(UTCdatetime_list)+1):
         j=k-1
-        datetime_j = UTCdatetime[j]
+        datetime_j = UTCdatetime_list[j]
         epoch_delta = datetime_j - datetime_epochstart
         epoch_j = epoch_delta.days*SECONDS_IN_DAY + epoch_delta.seconds + epoch_delta.microseconds/1000000
         

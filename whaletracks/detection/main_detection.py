@@ -6,6 +6,10 @@ Created on Thu Jan  9 11:10:59 2020
 @author: wader
 """
 
+import sys
+
+sys.path.append('/Users/wader/Desktop/whaletracks/') 
+
 from obspy.clients.fdsn import Client
 from obspy import UTCDateTime
 from obspy import read, read_inventory
@@ -35,16 +39,16 @@ DUR = 10 #average duration
 
 
 
-CHUNK_FILE = "analyzers_test.csv"
+CHUNK_FILE = "analyzers_prom2_5.csv"
 
 CLIENT_CODE = 'IRIS'
-PLOTFLAG = True
+PLOTFLAG = False
 
-STARTTIME = ("2011-12-14T11:00:00.000")
-ENDTIME = ("2011-12-14T11:20:00.000")
+#STARTTIME = ("2011-12-14T11:00:00.000")
+#ENDTIME = ("2011-12-14T11:20:00.000")
 
-#STARTTIME = ("2012-04-25T03::30:00.000")
-#ENDTIME = ("2012-04-29T06:30:00.000")
+STARTTIME = ("2011-10-00T00:00:00.000")
+ENDTIME = ("2012-07-00T00:00:00.000")
 
 HALF_HOUR = 1800  # in seconds
 CHUNK_LENGTH=HALF_HOUR   #secnods
@@ -146,7 +150,7 @@ def main(STARTTIME, ENDTIME,
             
             analyzers_chunk.append(analyzer_j.df)
             
-            analyzer_j.plot()
+            #analyzer_j.plot()
             
             
         utcstart_chunk=utcstart_chunk+CHUNK_LENGTH
@@ -168,7 +172,7 @@ def main(STARTTIME, ENDTIME,
     else:
         final_analyzer_df = pd.concat(analyzers)
         final_analyzer_df.to_csv(detection_pth,index=False)
-        
+    #import pdb; pdb.set_trace()    
     return final_analyzer_df
     
     #tr_filt.filter('bandpass',freqmin=5,freqmax=22,corners=2,zerophase=True)

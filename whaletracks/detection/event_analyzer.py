@@ -16,13 +16,14 @@ from obspy import UTCDateTime
 from whaletracks.common import util
 
 #b-call dur=10, rel_height=.7 and prominence=.5 wlen=60 seconds
+#a-call dur=70, rel_height=.9 prominence=.3 wlen=2 min distance=30
 REL_HEIGHT=.7
 SECONDS_IN_MINUTE = 60
 EXCLUDED_COLUMNS = [cn.THRESHOLD, cn.STATION_CODE, cn.NETWORK_CODE]
 
 class EventAnalyzer(object):
     
-    def __init__(self, times, values, start_chunk, dur=10, prominence=.5):
+    def __init__(self, times, values, start_chunk, dur=10, prominence=.25):
         """
         :param list-float times: offsets in seconds
         :param list-float values: values at times
