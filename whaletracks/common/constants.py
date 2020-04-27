@@ -70,6 +70,7 @@ POLES = "poles"  # semicolon separated values of immaginary numbers
 SENSITIVITY_FREQUENCY = "sensitivity_frequency"
 SENSITIVITY_VALUE = "sensitivity_value"
 SENSOR = "sensor"
+SNR = "snr"
 START_EPOCH = "start_epoch" # Float for days since 1-1-1970
 START_TIME = "start_time"  #UTC datetime
 STATION_CODE = "station_code"  # str
@@ -100,7 +101,7 @@ SCM_DETECTION = Schema(tablename="detections",
     columns=[NETWORK_CODE, STATION_CODE, DURATION,
     END_EPOCH, END_TIME, MIN_SIGNAL, PEAK_SIGNAL,
     PEAK_EPOCH, PEAK_TIME,
-    START_EPOCH, START_TIME, STATION_CODE, THRESHOLD],
+    START_EPOCH, START_TIME, STATION_CODE, THRESHOLD, SNR],
     csv_path=os.path.join(DATA_DIR, 'detections.csv'))
 SCHEMA.append(SCM_DETECTION.tablename, SCM_DETECTION.columns, csv_path=SCM_DETECTION.csv_path)
 

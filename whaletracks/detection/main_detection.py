@@ -39,16 +39,16 @@ DUR = 10 #average duration
 
 
 
-CHUNK_FILE = "analyzers_prom2_5.csv"
+CHUNK_FILE = "analyzers_SNR.csv"
 
 CLIENT_CODE = 'IRIS'
 PLOTFLAG = False
 
-#STARTTIME = ("2011-12-14T11:00:00.000")
-#ENDTIME = ("2011-12-14T11:20:00.000")
+STARTTIME = ("2011-12-14T11:00:00.000")
+ENDTIME = ("2011-12-14T11:20:00.000")
 
-STARTTIME = ("2011-10-00T00:00:00.000")
-ENDTIME = ("2012-07-00T00:00:00.000")
+STARTTIME = ("2011-12-01T00:00:00.000")
+ENDTIME = ("2011-12-14T00:00:00.000")
 
 HALF_HOUR = 1800  # in seconds
 CHUNK_LENGTH=HALF_HOUR   #secnods
@@ -143,11 +143,13 @@ def main(STARTTIME, ENDTIME,
             #import pdb; pdb.set_trace()
             analyzer_j = EventAnalyzer(times, values, utcstart_chunk)
             
+            snr = detect.get_snr(analyzer_j.df['peak_time'].to_list(), t, f_sub, Sxx_sub, utcstart_chunk)
+
             station_codes = np.repeat(tr_filt.stats.station,analyzer_j.df.shape[0])
             network_codes = np.repeat(tr_filt.stats.network,analyzer_j.df.shape[0])
             analyzer_j.df[cn.STATION_CODE] = station_codes
             analyzer_j.df[cn.NETWORK_CODE] = network_codes
-            
+            analyzer_j.df[cn.SNR] = snr
             analyzers_chunk.append(analyzer_j.df)
             
             #analyzer_j.plot()

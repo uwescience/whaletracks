@@ -63,6 +63,8 @@ class EventAnalyzer(object):
             dct[cn.PEAK_EPOCH] = list(np.repeat(None, len(dct[cn.PEAK_TIME])))
             dct[cn.START_EPOCH] = list(np.repeat(None, len(dct[cn.START_TIME])))
             dct[cn.END_EPOCH] = list(np.repeat(None, len(dct[cn.END_TIME])))
+            dct[cn.SNR] = list(np.repeat(None, len(dct[cn.PEAK_TIME])))
+        #import pdb; pdb.set_trace()
         return pd.DataFrame(dct)
         
         

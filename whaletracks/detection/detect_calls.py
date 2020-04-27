@@ -319,3 +319,29 @@ def xcorr_log(t,f,Sxx,tvec,fvec,BlueKernel,plotflag=True,scale_func=defaultScale
 
     #plt.savefig('Spectrogram_scores.png')
 
+def get_snr(times,t,f,Sxx,utcstart_chunk,snr_limits=[14, 16],snr_calllength=4,snr_freqwidth=.6):
+
+    snr=[]
+    #import pdb; pdb.set_trace()
+    freq_inds=np.where(np.logical_and(f>=min(snr_limits), f<=max(snr_limits)))
+    Sxx_sub=Sxx[freq_inds,:][0]
+    f=f[freq_inds]
+
+    med_noise = np.median(Sxx_sub)
+    utc_t = [utcstart_chunk + j for j in t]   
+    snr_t_int=np.int((snr_calllength/2)/(utc_t[1] - utc_t[0]))
+    for utc_time in times:
+        
+
+        t_peak_ind = utc_t.index(utc_time) 
+        Sxx_t_inds = list(range(t_peak_ind-snr_t_int,t_peak_ind+snr_t_int))
+        Sxx_t_sub = Sxx_sub[:,Sxx_t_inds]
+        db_max = np.max(Sxx_sub[:,t_peak_ind])
+        max_loc = np.where(Sxx_sub[:,t_peak_ind] == db_max)
+        freq_max=f[max_loc]
+        f_inds = np.where(np.logical_and(f>=freq_max-snr_freqwidth/2, f<=freq_max+snr_freqwidth/2))
+        Sxx_tf_sub = Sxx_t_sub[f_inds,:]
+        call_noise = np.mean(Sxx_tf_sub)
+        snr = snr + [10*np.log10(call_noise/med_noise)]
+
+    return snr
