@@ -54,10 +54,12 @@ def datetimeToEpoch(UTCdatetime_list):
     SECONDS_IN_DAY=86400
     datetime_epochstart = datetime.strptime('1970-01-01T00:00:00.00Z',
                                             '%Y-%m-%dT%H:%M:%S.%fZ')
+
+    #import pdb; pdb.set_trace()
     for k in range(1,len(UTCdatetime_list)+1):
         j=k-1
         datetime_j = UTCdatetime_list[j]
-        epoch_delta = datetime_j - datetime_epochstart
+        epoch_delta = datetime_j.datetime - datetime_epochstart
         epoch_j = epoch_delta.days*SECONDS_IN_DAY + epoch_delta.seconds + epoch_delta.microseconds/1000000
         
         epochlist.append(epoch_j)

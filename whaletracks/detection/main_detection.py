@@ -21,15 +21,17 @@ import scipy.signal as sig
 import matplotlib.colors as color
 import whaletracks.detection.detect_calls as detect
 from whaletracks.detection.event_analyzer import EventAnalyzer
+from whaletracks.common.util import datetimeToEpoch
 import pandas as pd
 import whaletracks.common.constants as cn
 from datetime import datetime
+import whaletracks.detection.MPpicklogic
 
 #Blue whale B-call characteristics
-F0 = 15.7 #average start frequency
-F1 = 14.6 #average end frequency
-BDWDTH = .7 # average bandwidth
-DUR = 10 #average duration
+#F0 = 15.7 #average start frequency
+#F1 = 14.6 #average end frequency
+#BDWDTH = .7 # average bandwidth
+#DUR = 10 #average duration
 
 #Blue whale A-call characteristics
 #F0 = 14.5 #average start frequency
@@ -37,37 +39,52 @@ DUR = 10 #average duration
 #BDWDTH = .5 # average bandwidth
 #DUR = 20 #average duration
 
+#Fin whale call characteristics
+F0 = 25 #average start frequency
+F1 = 15 #average end frequency
+BDWDTH = 3 # average bandwidth
+DUR = 2 #average duration
 
-
-CHUNK_FILE = "analyzers_SNR.csv"
+CHUNK_FILE = "analyzers_fin_test.csv"
+#FIN_DET_SERIES = "fin_series.csv"
+FINFLAG = True
 
 CLIENT_CODE = 'IRIS'
-PLOTFLAG = False
+PLOTFLAG = True
 
-STARTTIME = ("2011-12-14T11:00:00.000")
-ENDTIME = ("2011-12-14T11:20:00.000")
 
-STARTTIME = ("2011-12-01T00:00:00.000")
-ENDTIME = ("2011-12-14T00:00:00.000")
+STARTTIME = ("2012-03-12T19:50:00.000")
+ENDTIME = ("2012-03-12T20:50:00.000")
+#ENDTIME = ("2013-02-06T06:30:00.000")
+
+#STARTTIME = ("2011-12-28T17:55:00.000") #for testing on FN14A fins
+#ENDTIME = ("2011-12-28T17:59:00.000")
 
 HALF_HOUR = 1800  # in seconds
-CHUNK_LENGTH=HALF_HOUR   #secnods
+CHUNK_LENGTH=HALF_HOUR  #secnods
 
 #starttime=("2011-10-01T12:00:00.000")
 #endtime=("2012-07-01T12:00:00.000")
+
 
 
 def main(STARTTIME, ENDTIME,
          client_code=CLIENT_CODE, f0=F0,
          f1=F1,bdwdth=BDWDTH,dur=DUR,
          detection_pth=cn.SCM_DETECTION.csv_path, 
-         chunk_pth=CHUNK_FILE,station_ids="*",
+         chunk_pth=CHUNK_FILE,station_ids="B19",
          is_restart=True):
     """
     :param UTCDateTime starttime:
     :param UTCDateTime endtime:
     """
     # Check for existing file
+    #if os.path.isfile(FIN_DET_SERIES) and is_restart:
+    #    det_series = pd.read_csv(FIN_DET_SERIES)
+    #else:
+    #    dct = {'times': [], 'values': [], 'epoch': []}
+    #    det_series = pd.DataFrame(data=dct)
+
     if os.path.isfile(CHUNK_FILE) and is_restart:
         analyzers = [pd.read_csv(CHUNK_FILE)]
     else:
@@ -89,8 +106,8 @@ def main(STARTTIME, ENDTIME,
         
         while st_raw_exist == False and retry < 5:
             try:
-                st_raw=client.get_waveforms(network="7D", station=station_ids, location='*',
-                                            channel='BHZ,HHZ', starttime=utcstart_chunk,
+                st_raw=client.get_waveforms(network="XF", station=station_ids, location='*',
+                                            channel='BHZ,HHZ,ELZ', starttime=utcstart_chunk,
                                             endtime=utcend_chunk, attach_response=True)
                 st_raw_exist=True
                 retry=5
@@ -109,7 +126,7 @@ def main(STARTTIME, ENDTIME,
             
         st_raw.detrend(type="demean")
         st_raw.detrend(type="linear")
-        st_raw.remove_response(output='VEL',pre_filt=[.2,.5,22,24])
+        st_raw.remove_response(output='VEL',pre_filt=[1,3,40,45])
         st_raw.remove_sensitivity()
         
         num_sta=len(st_raw)
@@ -130,20 +147,32 @@ def main(STARTTIME, ENDTIME,
             if tr_filt.data[0]==tr_filt.data[1]: #skip if data is bad (indicated by constant data)
                 continue
         
-            [f,t,Sxx]=detect.plotwav(tr_filt.stats.sampling_rate, tr_filt.data, window_size=5, overlap=.95, plotflag=PLOTFLAG)
+            [f,t,Sxx]=detect.plotwav(tr_filt.stats.sampling_rate, tr_filt.data, window_size=3, overlap=.95, plotflag=PLOTFLAG,filt_freqlim=[15, 30],ylim=[15, 30])
         
-            [tvec, fvec, BlueKernel, freq_inds]=detect.buildkernel(f0, f1, bdwdth, dur, f, t, tr_filt.stats.sampling_rate, plotflag=PLOTFLAG)
+            [tvec, fvec, BlueKernel, freq_inds]=detect.buildkernel(f0, f1, bdwdth, dur, f, t, tr_filt.stats.sampling_rate, plotflag=PLOTFLAG,kernel_lims=detect.finKernelLims)
             
             #subset spectrogram to be in same frequency range as kernel
             Sxx_sub=Sxx[freq_inds,:][0]
             f_sub=f[freq_inds]
             
-            [times, values]=detect.xcorr_log(t,f_sub,Sxx_sub,tvec,fvec,BlueKernel, plotflag=PLOTFLAG)
+            [times, values]=detect.xcorr_log(t,f_sub,Sxx_sub,tvec,fvec,BlueKernel, plotflag=PLOTFLAG,ylim=[3,30])
             
+            if FINFLAG:
+                
+                utctimes=[utcstart_chunk + t for t in times]
+                dct = {'times': utctimes, 'values': values, 'epoch': datetimeToEpoch(utctimes)}
+                det_series=pd.DataFrame(dct)
+                #import pdb; pdb.set_trace()
+                #det_series=det_series.append(det_chunk,ignore_index=True)
+                #import pdb; pdb.set_trace()
+                det_series.to_csv('fin_series/fin_series'+str(utcstart_chunk)+'.csv',index=False)
+
+
+
             #import pdb; pdb.set_trace()
-            analyzer_j = EventAnalyzer(times, values, utcstart_chunk)
+            analyzer_j = EventAnalyzer(times, values, utcstart_chunk,finflag=FINFLAG)
             
-            snr = detect.get_snr(analyzer_j.df['peak_time'].to_list(), t, f_sub, Sxx_sub, utcstart_chunk)
+            snr = detect.get_snr(analyzer_j.df['peak_time'].to_list(), t, f_sub, Sxx_sub, utcstart_chunk, snr_limits=[15, 25],snr_calllength=2,snr_freqwidth=4)
 
             station_codes = np.repeat(tr_filt.stats.station,analyzer_j.df.shape[0])
             network_codes = np.repeat(tr_filt.stats.network,analyzer_j.df.shape[0])
@@ -151,6 +180,10 @@ def main(STARTTIME, ENDTIME,
             analyzer_j.df[cn.NETWORK_CODE] = network_codes
             analyzer_j.df[cn.SNR] = snr
             analyzers_chunk.append(analyzer_j.df)
+
+            if FINFLAG:
+                for index in range(len(analyzer_j.fin_dct['dt_up'])):
+                    [maxtime,maxamp,DPflag]=MPpicklogic(analyzer_j.fin_dct['times'][index],analyzer_j.fin_dct['det_score'][index])
             
             #analyzer_j.plot()
             
@@ -158,14 +191,12 @@ def main(STARTTIME, ENDTIME,
         utcstart_chunk=utcstart_chunk+CHUNK_LENGTH
         utcend_chunk=utcend_chunk+CHUNK_LENGTH
         
-        
+        #import pdb; pdb.set_trace()
         analyzers.extend(analyzers_chunk)
         new_df = pd.concat(analyzers)
         new_df.to_csv(chunk_pth, index=False)
         
-        
-        
-    #import pdb; pdb.set_trace()  
+
     
     if len(analyzers) == 0:
         print('WARNING: detections dataframe empty')

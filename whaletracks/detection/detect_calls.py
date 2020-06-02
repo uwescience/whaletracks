@@ -46,7 +46,15 @@ def defaultKernelLims(f0,f1,bdwdth):
     ker_max=np.max([ker_1,ker_2])
     return ker_min, ker_max
 
-def plotwav(samp, data, filt_type='bandpass', filt_freqlim=[8, 17], 
+ 
+def finKernelLims(f0,f1,bdwdth):
+    ker_1=3
+    ker_2=40
+    ker_min=np.min([ker_1,ker_2])
+    ker_max=np.max([ker_1,ker_2])
+    return ker_min, ker_max  
+
+def plotwav(samp, data, filt_type='bandpass', filt_freqlim=[12, 18], 
             filt_order=4, window_size=4, overlap=.95, window_type='hann',
             plotflag=True, scale_func=defaultScaleFunction,ylim=[12, 18]): 
     """
@@ -102,7 +110,7 @@ def plotwav(samp, data, filt_type='bandpass', filt_freqlim=[8, 17],
         plt.xlabel('Time [sec]')
         plt.ylim(ylim)
         plt.show(PLT_TIMESERIES)
-        plt.clf()
+        #plt.clf()
         
     return [f, t, Sxx]
 
@@ -156,7 +164,7 @@ def buildkernel(f0, f1, bdwdth, dur, f, t, samp, plotflag=True,kernel_lims=defau
         plt.colorbar()
         plt.title('Blue whale B-call kernel')
         plt.show(PLT_KERNEL)
-        plt.clf()
+        #plt.clf()
         
     return [tvec, fvec_sub, BlueKernel, freq_inds]
 
@@ -240,7 +248,7 @@ def xcorr(t,f,Sxx,tvec,fvec,BlueKernel,plotflag=True,scale_func=defaultScaleFunc
 
 
 
-def xcorr_log(t,f,Sxx,tvec,fvec,BlueKernel,plotflag=True,scale_func=defaultScaleFunction):
+def xcorr_log(t,f,Sxx,tvec,fvec,BlueKernel,plotflag=True,scale_func=defaultScaleFunction,ylim=[12, 18]):
     """
     Cross-correlate kernel with spectrogram and plot score
     :param np.array f: vector of frequencies returned from plotwav
@@ -289,7 +297,7 @@ def xcorr_log(t,f,Sxx,tvec,fvec,BlueKernel,plotflag=True,scale_func=defaultScale
         t2=max(t)
 #plot timeseries on upper axis
         plt.figure(PLT_SCORE, figsize=(9, 3))
-        fig, (ax0, ax1) = plt.subplots(nrows=2)
+        fig, (ax0, ax1) = plt.subplots(nrows=2,sharex=True)
         ax0.plot(t_scale,CorrVal_scale) #plot normalized detection scores as a time series.
         
         ax0.set_xlim([t1, t2]) #look at only positive values
@@ -308,13 +316,13 @@ def xcorr_log(t,f,Sxx,tvec,fvec,BlueKernel,plotflag=True,scale_func=defaultScale
         im = ax1.pcolormesh(t, f, Sxx_log, cmap=cmap,norm=norm) 
         fig.colorbar(im, ax=ax1,orientation='horizontal')
         ax1.set_xlim([t1, t2]) #look at spectrogram segment between given time boundaries
-        ax1.set_ylim([12, 18])
+        ax1.set_ylim(ylim)
         ax1.set_ylabel('Frequency [Hz]')
         ax1.set_xticks([])
         #ax1.set_xlabel('Time [seconds]')
         fig.tight_layout()
         plt.show(PLT_SCORE)
-        plt.clf()
+        #plt.clf()
     return  [t_scale, CorrVal_scale] 
 
     #plt.savefig('Spectrogram_scores.png')
@@ -334,7 +342,9 @@ def get_snr(times,t,f,Sxx,utcstart_chunk,snr_limits=[14, 16],snr_calllength=4,sn
         
 
         t_peak_ind = utc_t.index(utc_time) 
-        Sxx_t_inds = list(range(t_peak_ind-snr_t_int,t_peak_ind+snr_t_int))
+        Sxx_t_inds1 = list(range(t_peak_ind-snr_t_int,t_peak_ind+snr_t_int))
+        #import pdb; pdb.set_trace()
+        Sxx_t_inds = [x for x in Sxx_t_inds1 if x < len(t)]
         Sxx_t_sub = Sxx_sub[:,Sxx_t_inds]
         db_max = np.max(Sxx_sub[:,t_peak_ind])
         max_loc = np.where(Sxx_sub[:,t_peak_ind] == db_max)
