@@ -1,4 +1,4 @@
-name: whale
+name: whaletracks
 channels:
   - conda-forge
   - defaults

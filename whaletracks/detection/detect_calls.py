@@ -22,7 +22,7 @@ import matplotlib.colors as color
 import matplotlib.animation as animation
 import datetime
 import math
-
+import numpy.matlib
 # Constants
 PLT_TIMESERIES = 1
 PLT_SPECTROGRAM = 2
@@ -40,7 +40,7 @@ def defaultScaleFunction(Sxx):
     return vmin, vmax
 
 def defaultKernelLims(f0,f1,bdwdth):
-    ker_1=f1-4*bdwdth
+    ker_1=f1-4*bdwdth 
     ker_2=f0+4*bdwdth
     ker_min=np.min([ker_1,ker_2])
     ker_max=np.max([ker_1,ker_2])
@@ -141,7 +141,7 @@ def buildkernel(f0, f1, bdwdth, dur, f, t, samp, plotflag=True,kernel_lims=defau
     fvec = f #define frequency span of kernel to match spectrogram
     Kdist = np.zeros((np.size(tvec), np.size(fvec))) #preallocate space for kernel values
     ker_min, ker_max=kernel_lims(f0,f1,bdwdth)
-    
+    #import pdb; pdb.set_trace()
     for j in range(np.size(tvec)):
         #calculate hat function that is centered on linearly decresing
         #frequency values for each time in tvec
@@ -327,8 +327,9 @@ def xcorr_log(t,f,Sxx,tvec,fvec,BlueKernel,plotflag=True,scale_func=defaultScale
 
     #plt.savefig('Spectrogram_scores.png')
 
-def get_snr(times,t,f,Sxx,utcstart_chunk,snr_limits=[14, 16],snr_calllength=4,snr_freqwidth=.6):
+def get_snr(analyzer_j,t,f,Sxx,utcstart_chunk,snr_limits=[14, 16],snr_calllength=4,snr_freqwidth=.6,dur=10):
 
+    peak_times=analyzer_j.df['peak_time'].to_list()
     snr=[]
     #import pdb; pdb.set_trace()
     freq_inds=np.where(np.logical_and(f>=min(snr_limits), f<=max(snr_limits)))
@@ -338,7 +339,7 @@ def get_snr(times,t,f,Sxx,utcstart_chunk,snr_limits=[14, 16],snr_calllength=4,sn
     med_noise = np.median(Sxx_sub)
     utc_t = [utcstart_chunk + j for j in t]   
     snr_t_int=np.int((snr_calllength/2)/(utc_t[1] - utc_t[0]))
-    for utc_time in times:
+    for utc_time in peak_times:
         
 
         t_peak_ind = utc_t.index(utc_time) 
@@ -351,7 +352,104 @@ def get_snr(times,t,f,Sxx,utcstart_chunk,snr_limits=[14, 16],snr_calllength=4,sn
         freq_max=f[max_loc]
         f_inds = np.where(np.logical_and(f>=freq_max-snr_freqwidth/2, f<=freq_max+snr_freqwidth/2))
         Sxx_tf_sub = Sxx_t_sub[f_inds,:]
-        call_noise = np.mean(Sxx_tf_sub)
+        call_noise = np.median(Sxx_tf_sub)
         snr = snr + [10*np.log10(call_noise/med_noise)]
 
-    return snr
+    #Get SNR of 10 seconds of noise preceding call
+    start_times=analyzer_j.df['start_time'].to_list()
+    noise_t_int=np.int((dur)/(utc_t[1] - utc_t[0]))
+    start_snr=[]
+    for utc_time in start_times:
+        
+        t_peak_ind = utc_t.index(utc_time) 
+        Sxx_t_inds1 = list(range(t_peak_ind-noise_t_int,t_peak_ind))
+        #import pdb; pdb.set_trace()
+        Sxx_t_inds = [x for x in Sxx_t_inds1 if x >= 0]
+        Sxx_t_sub = Sxx_sub[:,Sxx_t_inds]
+        ambient_noise = np.median(Sxx_t_sub)
+        start_snr = start_snr + [10*np.log10(ambient_noise/med_noise)]
+
+    #Get SNR of 10 seconds after call
+    end_times=analyzer_j.df['end_time'].to_list()
+    noise_t_int=np.int((dur)/(utc_t[1] - utc_t[0]))
+    end_snr=[]
+    for utc_time in end_times:
+        
+        t_peak_ind = utc_t.index(utc_time) 
+        Sxx_t_inds1 = list(range(t_peak_ind,t_peak_ind+noise_t_int))
+        #import pdb; pdb.set_trace()
+        Sxx_t_inds = [x for x in Sxx_t_inds1 if x < len(t)]
+        Sxx_t_sub = Sxx_sub[:,Sxx_t_inds]
+        ambient_noise = np.median(Sxx_t_sub)
+        end_snr = end_snr + [10*np.log10(ambient_noise/med_noise)]
+
+    #average SNR from start and end
+    #import pdb; pdb.set_trace()
+    ambient_snr=[(start_snr[j]+end_snr[j])/2 for j in range(len(start_snr))]
+    #ambient_snr=np.divide(np.sum(start_snr,end_snr),2)
+    
+    return snr, ambient_snr
+
+
+def freq_analysis(analyzer_j,t,f,Sxx,utcstart_chunk,freq_window=[14, 16.5]):
+    peak_freqs = []
+    start_freqs = []
+    end_freqs = []
+    peak_stds = []
+    start_stds = []
+    end_stds = []
+    #import pdb; pdb.set_trace()
+    freq_inds = np.where(np.logical_and(f>=min(freq_window), f<=max(freq_window)))
+    Sxx_sub = Sxx[freq_inds,:][0]
+    f = f[freq_inds]
+    utc_t = [utcstart_chunk + j for j in t]   
+    utc_array = np.array(utc_t)
+
+    for k in range(0,len(analyzer_j.df)): #for peak freq
+        
+        starttime = analyzer_j.df['start_time'][k]-2
+        endtime = analyzer_j.df['end_time'][k]+2
+        callbool = (utc_array < endtime) & (utc_array > starttime)
+        inds = np.array(list(range(len(callbool))))
+        callinds = inds[callbool]
+        call_times = utc_array[callbool]
+        Sxx_total_sub = Sxx_sub[:,callinds]
+        farray = np.matlib.repmat(f,len(call_times),1)
+        peak_freq = np.sum(np.multiply(farray.T,Sxx_total_sub))/np.sum(Sxx_total_sub)
+        peak_freqs = peak_freqs + [peak_freq]
+        peak_std = np.sum(np.multiply(np.power(np.subtract(farray.T,np.mean(farray)),2),Sxx_total_sub))/np.sum(Sxx_total_sub)
+        peak_stds = peak_stds + [peak_std]
+        
+
+    for k in range(0,len(analyzer_j.df)): #for start freq
+        
+        starttime = analyzer_j.df['start_time'][k]
+        endtime = analyzer_j.df['start_time'][k]+1
+        callbool = (utc_array < endtime) & (utc_array > starttime)
+        inds = np.array(list(range(len(callbool))))
+        callinds = inds[callbool]
+        call_times = utc_array[callbool]
+        Sxx_total_sub = Sxx_sub[:,callinds]
+        farray = np.matlib.repmat(f,len(call_times),1)
+        start_freq = np.sum(np.multiply(farray.T,Sxx_total_sub))/np.sum(Sxx_total_sub)
+        start_freqs = start_freqs + [start_freq]
+        start_std = np.sum(np.multiply(np.power(np.subtract(farray.T,np.mean(farray)),2),Sxx_total_sub))/np.sum(Sxx_total_sub)
+        start_stds = start_stds + [start_std]
+
+    for k in range(0,len(analyzer_j.df)): #for end freq
+        
+        starttime = analyzer_j.df['end_time'][k]-1
+        endtime = analyzer_j.df['end_time'][k]
+        callbool = (utc_array < endtime) & (utc_array > starttime)
+        inds = np.array(list(range(len(callbool))))
+        callinds = inds[callbool]
+        call_times = utc_array[callbool]
+        Sxx_total_sub = Sxx_sub[:,callinds]
+        farray = np.matlib.repmat(f,len(call_times),1)
+        end_freq = np.sum(np.multiply(farray.T,Sxx_total_sub))/np.sum(Sxx_total_sub)
+        end_freqs = end_freqs + [end_freq]
+        end_std = np.sum(np.multiply(np.power(np.subtract(farray.T,np.mean(farray)),2),Sxx_total_sub))/np.sum(Sxx_total_sub)
+        end_stds = end_stds + [end_std]
+
+
+    return peak_freqs, start_freqs, end_freqs, peak_stds, start_stds, end_stds

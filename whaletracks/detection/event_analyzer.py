@@ -25,7 +25,7 @@ EXCLUDED_COLUMNS = [cn.THRESHOLD, cn.STATION_CODE, cn.NETWORK_CODE]
 
 class EventAnalyzer(object):
     
-    def __init__(self, times, values, start_chunk, dur=2, prominence=.8,finflag=False):
+    def __init__(self, times, values, start_chunk, dur=10, prominence=.5,finflag=False):
         """
         :param list-float times: offsets in seconds
         :param list-float values: values at times
