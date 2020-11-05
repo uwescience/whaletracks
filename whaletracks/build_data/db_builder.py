@@ -114,10 +114,10 @@ class DBBuilder(object):
       if schema.csv_path is not None:
         df_dct[schema.tablename] = DBBuilder._readCSV(schema.csv_path)
     # Add epoch columns, days since 1970 for all columns ending in _TIME
-    for df in df_dct.values():
+    #for df in df_dct.values():
       #util.addEpochColumns(df)
       # Temporary code to fill in EPOCH columns
-      fillEpochColumns(df)
+      #fillEpochColumns(df)
     # Write the tables
     for tablename, df in df_dct.items():
       util.updateDBTable(df, self._db_pth, tablename)

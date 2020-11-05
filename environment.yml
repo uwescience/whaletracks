@@ -10,3 +10,7 @@ dependencies:
   - notebook
   - obspy
   - nose
+  - scipy
+  - datetime
+  - math
+  - pickle

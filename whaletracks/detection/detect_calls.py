@@ -48,7 +48,7 @@ def defaultKernelLims(f0,f1,bdwdth):
 
  
 def finKernelLims(f0,f1,bdwdth):
-    ker_1=3
+    ker_1=0
     ker_2=40
     ker_min=np.min([ker_1,ker_2])
     ker_max=np.max([ker_1,ker_2])
@@ -116,7 +116,7 @@ def plotwav(samp, data, filt_type='bandpass', filt_freqlim=[12, 18],
 
 
 #Define function to build 2-D kernel linear sweep to cross-correlate with spectrograms
-def buildkernel(f0, f1, bdwdth, dur, f, t, samp, plotflag=True,kernel_lims=defaultKernelLims):
+def buildkernel(f0, f1, bdwdth, dur, f, t, samp, plotflag=True,kernel_lims=finKernelLims):
     
     """
     Calculate kernel and plot
@@ -137,7 +137,7 @@ def buildkernel(f0, f1, bdwdth, dur, f, t, samp, plotflag=True,kernel_lims=defau
       BlueKernel - Matrix of kernel values
     """
     
-    tvec = np.linspace(0,dur,np.size(np.nonzero(t < dur))) #define kernel as length dur
+    tvec = np.linspace(0,dur,np.size(np.nonzero((t < dur*8) & (t > dur*7)))) #define kernel as length dur
     fvec = f #define frequency span of kernel to match spectrogram
     Kdist = np.zeros((np.size(tvec), np.size(fvec))) #preallocate space for kernel values
     ker_min, ker_max=kernel_lims(f0,f1,bdwdth)
@@ -155,7 +155,7 @@ def buildkernel(f0, f1, bdwdth, dur, f, t, samp, plotflag=True,kernel_lims=defau
     fvec_sub=fvec[freq_inds]
     BlueKernel=BlueKernel_full[freq_inds,:][0]
     
-    
+    #import pdb; pdb.set_trace();
     if plotflag == True:
         plt.figure(PLT_KERNEL)
         plt.pcolormesh(tvec, fvec_sub, BlueKernel) #show plot of kernel
