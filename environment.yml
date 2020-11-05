@@ -11,6 +11,3 @@ dependencies:
   - obspy
   - nose
   - scipy
-  - datetime
-  - math
-  - pickle
