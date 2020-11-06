@@ -109,7 +109,7 @@ def plotwav(samp, data, filt_type='bandpass', filt_freqlim=[12, 18],
         plt.ylabel('Frequency [Hz]')
         plt.xlabel('Time [sec]')
         plt.ylim(ylim)
-        plt.show(PLT_TIMESERIES)
+        plt.show()
         #plt.clf()
         
     return [f, t, Sxx]
@@ -163,7 +163,7 @@ def buildkernel(f0, f1, bdwdth, dur, f, t, samp, plotflag=True,kernel_lims=finKe
         plt.gca().set_aspect('equal')
         plt.colorbar()
         plt.title('Blue whale B-call kernel')
-        plt.show(PLT_KERNEL)
+        plt.show()
         #plt.clf()
         
     return [tvec, fvec_sub, BlueKernel, freq_inds]
@@ -321,7 +321,7 @@ def xcorr_log(t,f,Sxx,tvec,fvec,BlueKernel,plotflag=True,scale_func=defaultScale
         ax1.set_xticks([])
         #ax1.set_xlabel('Time [seconds]')
         fig.tight_layout()
-        plt.show(PLT_SCORE)
+        plt.show()
         #plt.clf()
     return  [t_scale, CorrVal_scale] 
 
