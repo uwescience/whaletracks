@@ -22,7 +22,7 @@ import scipy.io.wavfile as siow
 import numpy as np
 import scipy.signal as sig
 import matplotlib.colors as color
-import whaletracks.detection.detect_calls as detect
+import detect_calls as detect
 from whaletracks.detection.event_analyzer import EventAnalyzer
 from whaletracks.common.util import datetimeToEpoch
 import pandas as pd
@@ -100,8 +100,8 @@ def main(STARTTIME, ENDTIME,
          chunk_pth=CHUNK_FILE,station_ids=station,
          is_restart=True):
     """
-    :param UTCDateTime starttime:
-    :param UTCDateTime endtime:
+    :param UTCDateTime starttime: ex. STARTTIME = ("2012-03-30T21:37:00.000")
+    :param UTCDateTime endtime: ex. ENDTIME = ("2012-03-30T22:38:00.000")
     """
 
     if os.path.isfile(CHUNK_FILE) and is_restart:
@@ -148,7 +148,7 @@ def main(STARTTIME, ENDTIME,
         #Remove sensitivity and response, and filter data
         st_raw.detrend(type="demean")
         st_raw.detrend(type="linear")
-        st_raw.remove_response(output='VEL',pre_filt=[1,3,40,45])
+        st_raw.remove_response(output='VEL',pre_filt=[1,3,26,30])
         st_raw.remove_sensitivity()
         
 
