@@ -15,16 +15,16 @@ from obspy import UTCDateTime
 from whaletracks.common import util
 import math
 
-#b-call dur=10, rel_height=.7 and prominence=.5 wlen=60 seconds
+#b-call dur=5, rel_height=.7 and prominence=.5 wlen=60 seconds
 #a-call dur=70, rel_height=.9 prominence=.3 wlen=2 min distance=30
-#fin-call dur=1, rel_height=.3 prominence=.6 wlen=60 sec distance=18
-REL_HEIGHT=.3
+#fin-call dur=.5, rel_height=.3 prominence=.6 wlen=60 sec distance=18
+#REL_HEIGHT=.3
 SECONDS_IN_MINUTE = 60
 EXCLUDED_COLUMNS = [cn.THRESHOLD, cn.STATION_CODE, cn.NETWORK_CODE]
 
 class EventAnalyzer(object):
     
-    def __init__(self, times, values, start_chunk, dur=1, prominence=.6):
+    def __init__(self, times, values, start_chunk, dur=1, prominence=.6, distance=18, rel_height=.8):
         """
         :param list-float times: offsets in seconds
         :param list-float values: values at times
@@ -35,11 +35,11 @@ class EventAnalyzer(object):
         self.values = values
         self.start_chunk = start_chunk
         peak_indicies, peak_properties=sig.find_peaks(self.values,
-            distance=18*(1/(self.times[1]-self.times[0])),
-            width=(dur/2)*(1/(self.times[1]-self.times[0])),
+            distance=distance*(1/(self.times[1]-self.times[0])),
+            width=dur*(1/(self.times[1]-self.times[0])),
             prominence=prominence,
             wlen=SECONDS_IN_MINUTE*(1/(self.times[1]-self.times[0])),
-            rel_height=REL_HEIGHT)
+            rel_height=rel_height)
         
         self.df = self._makeDetectionDF(peak_indicies, peak_properties)
         self.df[cn.THRESHOLD] = prominence

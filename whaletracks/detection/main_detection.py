@@ -31,7 +31,7 @@ from datetime import datetime
 from whaletracks.common.util import datetimeToEpoch
 
 FINFLAG = True #True if detecting fins, False if detecting blues
-CHUNK_FILE = "deleteme.csv"
+CHUNK_FILE = "Fins_chunk.csv"
 #CHUNK_FILE = "Fins_MP.csv" #Name of saved call file
 #FIN_DET_SERIES = "fin_series.csv"
 PLOTFLAG = False #Use if troubleshooting and want to see plots.
@@ -42,6 +42,9 @@ station="B19" #Specific station, or '*' for all available stations
 location='*'  # '*' for all available locations
 channel='BHZ,HHZ,ELZ' #Choose channels,  you'll want 'BHZ,HHZ' for Cascadia
                       #Check http://ds.iris.edu/mda/OO/ for OOI station channels
+
+#DET_PATH=cn.SCM_DETECTION.csv_path
+DET_PATH="Fins_final.csv" #Final save file
 
 if FINFLAG == False:
     #Build blue whale B-call characteristics - wide
@@ -77,7 +80,7 @@ if FINFLAG:
 #ENDTIME = ("2012-01-09T04:20:00.000")
 
 STARTTIME = ("2012-03-30T21:37:00.000") # for fin max call testing
-ENDTIME = ("2012-03-30T21:38:00.000")
+ENDTIME = ("2012-03-30T22:38:00.000")
 
 #STARTTIME = ("2011-12-28T17:55:00.000") #for testing on FN14A fins
 #ENDTIME = ("2011-12-28T17:59:00.000")
@@ -93,7 +96,7 @@ CHUNK_LENGTH=HALF_HOUR  #secnods
 def main(STARTTIME, ENDTIME,
          client_code=CLIENT_CODE, f0=F0,
          f1=F1,bdwdth=BDWDTH,dur=DUR,
-         detection_pth=cn.SCM_DETECTION.csv_path, 
+         detection_pth=DET_PATH, 
          chunk_pth=CHUNK_FILE,station_ids=station,
          is_restart=True):
     """
@@ -169,21 +172,39 @@ def main(STARTTIME, ENDTIME,
 
             #Build detection metrics for either fin or blue whale calls
             if FINFLAG:
+
+                #Spectrogram metrics
                 window_size=2
                 overlap=.95
                 freqlim=[12, 25]
+                #SNR metrics
                 snr_limits=[15, 25]
                 snr_calllength=1
                 snr_freqwidth=5
+                #Event metrics
+                prominence=.6 #min threshold
+                event_dur= .5 #minimum width of detection
+                distance=18 #minimum distance between detections
+                rel_height=.8
+
+
 
             if FINFLAG == False:
+                #Spectrogram metrics
                 window_size=5
                 overlap=.95
                 freqlim=[12, 18]
+                #SNR metrics
                 snr_limits=[14, 16]
                 snr_calllength=4
                 snr_freqwidth=.6
+                #Event metrics
+                prominence=.5 #min threshold
+                event_dur= 5 #minimum width of detection
+                distance=18 #minimum distance between detections
+                rel_height=.7
                 
+             
             #Make spectrogram
             [f,t,Sxx]=detect.plotwav(tr_filt.stats.sampling_rate, tr_filt.data, window_size=window_size, overlap=overlap, plotflag=PLOTFLAG,filt_freqlim=freqlim,ylim=freqlim)
             
@@ -198,10 +219,10 @@ def main(STARTTIME, ENDTIME,
             [times, values]=detect.xcorr_log(t,f_sub,Sxx_sub,tvec,fvec,BlueKernel, plotflag=PLOTFLAG,ylim=freqlim)
             
            #Pick detections using EventAnalyzer class
-            analyzer_j = EventAnalyzer(times, values, utcstart_chunk)
+            analyzer_j = EventAnalyzer(times, values, utcstart_chunk, dur=event_dur, prominence=prominence, distance=distance, rel_height=rel_height)
 
             #get multipath data for fins
-            if FINFLAG:
+            if MP_FLAG:
                 mp_df = pd.DataFrame(columns=cn.SCM_MULTIPATHS.columns)
                 utctimes=[utcstart_chunk + t for t in times]
                 dt_up=10

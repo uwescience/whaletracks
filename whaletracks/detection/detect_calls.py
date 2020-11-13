@@ -339,6 +339,7 @@ def get_snr(analyzer_j,t,f,Sxx,utcstart_chunk,snr_limits=[14, 16],snr_calllength
     med_noise = np.median(Sxx_sub)
     utc_t = [utcstart_chunk + j for j in t]   
     snr_t_int=np.int((snr_calllength/2)/(utc_t[1] - utc_t[0]))
+
     for utc_time in peak_times:
         
 
@@ -355,38 +356,37 @@ def get_snr(analyzer_j,t,f,Sxx,utcstart_chunk,snr_limits=[14, 16],snr_calllength
         call_noise = np.median(Sxx_tf_sub)
         snr = snr + [10*np.log10(call_noise/med_noise)]
 
-    #Get SNR of 10 seconds of noise preceding call
+    #Get SNR of 5 seconds of noise preceding call
     start_times=analyzer_j.df['start_time'].to_list()
     noise_t_int=np.int((dur)/(utc_t[1] - utc_t[0]))
     start_snr=[]
     for utc_time in start_times:
         
         t_peak_ind = utc_t.index(utc_time) 
-        Sxx_t_inds1 = list(range(t_peak_ind-noise_t_int,t_peak_ind))
+        Sxx_t_inds1 = list(range(t_peak_ind-noise_t_int-2,t_peak_ind-2)) #5 second of noise ending 2 seconds prior to call start time
         #import pdb; pdb.set_trace()
         Sxx_t_inds = [x for x in Sxx_t_inds1 if x >= 0]
         Sxx_t_sub = Sxx_sub[:,Sxx_t_inds]
         ambient_noise = np.median(Sxx_t_sub)
         start_snr = start_snr + [10*np.log10(ambient_noise/med_noise)]
 
-    #Get SNR of 10 seconds after call
-    end_times=analyzer_j.df['end_time'].to_list()
-    noise_t_int=np.int((dur)/(utc_t[1] - utc_t[0]))
-    end_snr=[]
-    for utc_time in end_times:
-        
-        t_peak_ind = utc_t.index(utc_time) 
-        Sxx_t_inds1 = list(range(t_peak_ind,t_peak_ind+noise_t_int))
-        #import pdb; pdb.set_trace()
-        Sxx_t_inds = [x for x in Sxx_t_inds1 if x < len(t)]
-        Sxx_t_sub = Sxx_sub[:,Sxx_t_inds]
-        ambient_noise = np.median(Sxx_t_sub)
-        end_snr = end_snr + [10*np.log10(ambient_noise/med_noise)]
+    #Get SNR of 3 seconds after call
+    #end_times=analyzer_j.df['end_time'].to_list()
+    #noise_t_int=np.int((dur)/(utc_t[1] - utc_t[0]))
+    #end_snr=[]
+    #for utc_time in end_times: 
+        #t_peak_ind = utc_t.index(utc_time) 
+        #Sxx_t_inds1 = list(range(t_peak_ind,t_peak_ind+noise_t_int))
+        #Sxx_t_inds = [x for x in Sxx_t_inds1 if x < len(t)]
+        #Sxx_t_sub = Sxx_sub[:,Sxx_t_inds]
+        #ambient_noise = np.median(Sxx_t_sub)
+        #end_snr = end_snr + [10*np.log10(ambient_noise/med_noise)]
+
 
     #average SNR from start and end
     #import pdb; pdb.set_trace()
-    ambient_snr=[(start_snr[j]+end_snr[j])/2 for j in range(len(start_snr))]
-    #ambient_snr=np.divide(np.sum(start_snr,end_snr),2)
+    #ambient_snr=[(start_snr[j]+end_snr[j])/2 for j in range(len(start_snr))]
+    ambient_snr=[start_snr[j] for j in range(len(start_snr))]
     
     return snr, ambient_snr
 
