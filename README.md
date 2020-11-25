@@ -19,21 +19,16 @@ The data are structured as ...
 
 
 ## Installation
+Install [github desktop](https://desktop.github.com/) (or you can use git in the terminal if you prefer)
+Install [Anaconda](https://www.anaconda.com/products/individual) for your operating system
+
+
 Assumes that ``anaconda`` and ``git`` are installed.
 
 - ``git clone --recurse-submodules https://github.com/uwescience/whaletracks.git``
 - ``cd whaletracks``
 - ``bash setup.sh``
 
-You will also need to install the github 
-[large file storage](https://help.github.com/en/github/managing-large-files/installing-git-large-file-storage).
-Click the link to see the installating details appropriate
-for you operating system.
-Once lfs is installed, do:
-
-- git lfs install
-- git lfs track *.db
-- git lfs track *.csv
 
 
 ## Running codes
