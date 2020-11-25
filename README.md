@@ -8,18 +8,18 @@ Analysis of ocean bottom seismometer (OBS) data to detect and track whales.
 - Install [Anaconda](https://www.anaconda.com/products/individual) python distribution for your operating system
 - Clone whaletracks to your local machine using Github Desktop 
 
-- If using Mac or Linux:
+If using Mac or Linux:
 -   Open bash terminal and navigate to whaletracks directory using "cd whaletracks"
 -   Setup python package by running "python setup.py develop"
 -   Download dependencies by running "pip install whaletracks"
 
-- If using Windows:
+If using Windows:
 -   Open Anaconda Navigator
 -   Launch "CMD.exe Prompt"
 -   In CMD.exe terminal, use "cd" command to navigate to whaletracks folder
 -   Setup python package by running "python setup.py develop"
 -   Download dependencies by running "pip install whaletracks"
--
+
 - Now you should be able to open any python code in the whaletracks directory using the Spyder IDE from the Anaconda Navigator. Use Spyder to edit any code parameters. 
 - It is recommended that you run these codes using a terminal, NOT Spyder. Save any code edits you made from Spyder, then open either a CMD.exe (Windows) or bash (Mac, Linux) terminal. In the terminal, enter 'ipython'. This will open an instance of python in your terminal. From there, run any python codes by entering 'run code_name.py'
 
