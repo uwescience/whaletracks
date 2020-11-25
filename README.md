@@ -9,7 +9,7 @@ Install [github desktop](https://desktop.github.com/) (or you can use git in the
 
 Install [Anaconda](https://www.anaconda.com/products/individual) python distribution for your operating system
 
-Clone whaletracks to your local machine using Github Desktop 
+Clone whaletracks to your local machine using Github Desktop (Click on green box on whaletracks Github page, then click 'open using Github Desktop') 
 
 If using Mac or Linux:
 -   Open bash terminal and navigate to whaletracks directory using "cd whaletracks"
