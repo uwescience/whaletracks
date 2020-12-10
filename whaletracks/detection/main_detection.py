@@ -30,21 +30,21 @@ import whaletracks.common.constants as cn
 from datetime import datetime
 from whaletracks.common.util import datetimeToEpoch
 
-FINFLAG = True #True if detecting fins, False if detecting blues
-CHUNK_FILE = "Fins_chunk.csv"
-#CHUNK_FILE = "Fins_MP.csv" #Name of saved call file
+FINFLAG = False #True if detecting fins, False if detecting blues
+#CHUNK_FILE = "Blues_chunk_test.csv"
+CHUNK_FILE = "Fins_chunk.csv" #Name of saved call file
 #FIN_DET_SERIES = "fin_series.csv"
-PLOTFLAG = False #Use if troubleshooting and want to see plots.
+PLOTFLAG = True #Use if troubleshooting and want to see plots.
 MP_FLAG = False #Use if storing Fin multipath info
 CLIENT_CODE = 'IRIS'
-network="XF" #Network name "OO" for OOI, "7D" for Cascadia
-station="B19" #Specific station, or '*' for all available stations
+network="OO" #Network name "OO" for OOI, "7D" for Cascadia, "XF" for marianas
+station="AXBA1" #Specific station, or '*' for all available stations
 location='*'  # '*' for all available locations
 channel='BHZ,HHZ,ELZ' #Choose channels,  you'll want 'BHZ,HHZ' for Cascadia
                       #Check http://ds.iris.edu/mda/OO/ for OOI station channels
 
 #DET_PATH=cn.SCM_DETECTION.csv_path
-DET_PATH="Fins_final.csv" #Final save file
+DET_PATH="Fins_final_test.csv" #Final save file
 
 if FINFLAG == False:
     #Build blue whale B-call characteristics - wide
@@ -79,11 +79,11 @@ if FINFLAG:
 #STARTTIME = ("2012-01-09T04:10:00.000") # for blue whale freq testing FN14A
 #ENDTIME = ("2012-01-09T04:20:00.000")
 
-STARTTIME = ("2012-03-30T21:37:00.000") # for fin max call testing
-ENDTIME = ("2012-03-30T22:38:00.000")
+#STARTTIME = ("2012-03-30T21:37:00.000") # for fin max call testing marianas
+#ENDTIME = ("2012-03-30T22:38:00.000")
 
-#STARTTIME = ("2011-12-28T17:55:00.000") #for testing on FN14A fins
-#ENDTIME = ("2011-12-28T17:59:00.000")
+STARTTIME = ("2018-08-25T13:07:00.000") #for testing on FN14A fins
+ENDTIME = ("2018-08-25T15:37:00.000")
 
 HALF_HOUR = 1800  # in seconds
 CHUNK_LENGTH=HALF_HOUR  #secnods
@@ -163,7 +163,7 @@ def main(STARTTIME, ENDTIME,
     
             tr_filt=tr.copy()
             
-            if len(tr_filt.data) < tr_filt.stats.sampling_rate*60: #skip if less than 1 min of data
+            if len(tr_filt.data) < tr_filt.stats.sampling_rate*60*5: #skip if less than 1 min of data
                 continue
             if tr_filt.data[0]==tr_filt.data[1]: #skip if data is bad (indicated by constant data)
                 continue
@@ -209,7 +209,7 @@ def main(STARTTIME, ENDTIME,
             [f,t,Sxx]=detect.plotwav(tr_filt.stats.sampling_rate, tr_filt.data, window_size=window_size, overlap=overlap, plotflag=PLOTFLAG,filt_freqlim=freqlim,ylim=freqlim)
             
             #Make detection kernel
-            [tvec, fvec, BlueKernel, freq_inds]=detect.buildkernel(f0, f1, bdwdth, dur, f, t, tr_filt.stats.sampling_rate, plotflag=PLOTFLAG)
+            [tvec, fvec, BlueKernel, freq_inds]=detect.buildkernel(f0, f1, bdwdth, dur, f, t, tr_filt.stats.sampling_rate, plotflag=PLOTFLAG, kernel_lims=detect.defaultKernelLims)
             
             #subset spectrogram to be in same frequency range as kernel
             Sxx_sub=Sxx[freq_inds,:][0]
@@ -220,7 +220,7 @@ def main(STARTTIME, ENDTIME,
             
            #Pick detections using EventAnalyzer class
             analyzer_j = EventAnalyzer(times, values, utcstart_chunk, dur=event_dur, prominence=prominence, distance=distance, rel_height=rel_height)
-
+            analyzer_j.plot()
             #get multipath data for fins
             if MP_FLAG:
                 mp_df = pd.DataFrame(columns=cn.SCM_MULTIPATHS.columns)

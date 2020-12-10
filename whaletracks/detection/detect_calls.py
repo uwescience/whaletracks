@@ -162,6 +162,7 @@ def buildkernel(f0, f1, bdwdth, dur, f, t, samp, plotflag=True,kernel_lims=finKe
         plt.axis([0, dur, np.min(fvec), np.max(fvec)])
         plt.gca().set_aspect('equal')
         plt.colorbar()
+        plt.ylim(ker_min,ker_max)
         plt.title('Blue whale B-call kernel')
         plt.show()
         #plt.clf()
