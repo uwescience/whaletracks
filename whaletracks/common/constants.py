@@ -92,10 +92,12 @@ ARRIVAL_1 = "arrival_1"
 ARRIVAL_2 = "arrival_2"
 ARRIVAL_3 = "arrival_3"
 ARRIVAL_4 = "arrival_4"
+ARRIVAL_5 = "arrival_5"
 AMP_1 = "amp_1"
 AMP_2 = "amp_2"
 AMP_3 = "amp_3"
 AMP_4 = "amp_4"
+AMP_5 = "amp_5"
 
 
 # Table schemas
@@ -114,8 +116,8 @@ SCM_CHANNEL = Schema(tablename="channels",
 SCHEMA.append(SCM_CHANNEL.tablename, SCM_CHANNEL.columns)
 
 SCM_MULTIPATHS = Schema(tablename="multipaths",
-    columns=[ARRIVAL_1, ARRIVAL_2, ARRIVAL_3, ARRIVAL_4,
-    AMP_1,AMP_2,AMP_3,AMP_4],
+    columns=[ARRIVAL_1, ARRIVAL_2, ARRIVAL_3, ARRIVAL_4, ARRIVAL_5,
+    AMP_1, AMP_2, AMP_3, AMP_4, AMP_5],
     csv_path=None)
 SCHEMA.append(SCM_CHANNEL.tablename, SCM_CHANNEL.columns)
 

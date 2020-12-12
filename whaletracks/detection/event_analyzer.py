@@ -80,7 +80,7 @@ class EventAnalyzer(object):
         return pd.DataFrame(dct)
 
     
-    def mp_picker(self, times, values, mastercall, dur=1, prominence=.15):
+    def mp_picker(self, times, values, utcstart_chunk, dur=.8, prominence=.1):
         """
         :param list-float times: offsets in seconds
         :param list-float values: values at times
@@ -94,12 +94,14 @@ class EventAnalyzer(object):
             prominence=prominence,
             wlen=SECONDS_IN_MINUTE*(1/(times[1]-times[0])),
             rel_height=.8)
+
         
         #import pdb; pdb.set_trace();
-        mp_df_j = self.makeMultipathDF(peak_indicies, peak_properties, times, values)
+        mp_df_j = self.makeMultipathDF(peak_indicies, peak_properties, times, values, utcstart_chunk)
+
         return mp_df_j
 
-    def makeMultipathDF(self, peak_indicies, peak_properties, times, values):
+    def makeMultipathDF(self, peak_indicies, peak_properties, times, values, utcstart_chunk):
         """
         :param int index: index of peak
         :return pd.DataFrame: all columns, except for EXCLUDED_COLUMNS
@@ -130,27 +132,31 @@ class EventAnalyzer(object):
             dct[cn.END_FREQUENCY_STD] = list(np.repeat(None, len(dct[cn.PEAK_TIME])))
 
         event_df=pd.DataFrame(dct)
-        event_peaksort=event_df.sort_values(by=['peak_signal'],ascending=False)[0:4]
-        event_timesort=event_peaksort.sort_values(by=['start_time'])
-        arrivals = event_timesort['start_time'].values.tolist()
+        event_peaksort=event_df.sort_values(by=['peak_signal'],ascending=False)[0:5]
+        event_timesort=event_peaksort.sort_values(by=['peak_time'])
+        arrivals_sec = event_timesort['peak_time'].values.tolist()
+        arrivals = [utcstart_chunk + a for a in arrivals_sec]
         amplitudes = event_timesort['peak_signal'].values.tolist()
-        nonelen=4-len(arrivals)
+        nonelen=5-len(arrivals)
         nonelist=list(np.repeat(None, nonelen))
         arrivals=arrivals+nonelist
         amplitudes=amplitudes+nonelist
         
         mp_dct = {k: [] for k in cn.SCM_MULTIPATHS.columns 
                if not k in EXCLUDED_COLUMNS}
+        #import pdb; pdb.set_trace()
         mp_dct[cn.ARRIVAL_1].append(arrivals[0])
         mp_dct[cn.ARRIVAL_2].append(arrivals[1])
         mp_dct[cn.ARRIVAL_3].append(arrivals[2])
         mp_dct[cn.ARRIVAL_4].append(arrivals[3])
+        mp_dct[cn.ARRIVAL_5].append(arrivals[4])
         mp_dct[cn.AMP_1].append(amplitudes[0])
         mp_dct[cn.AMP_2].append(amplitudes[1])
         mp_dct[cn.AMP_3].append(amplitudes[2])
         mp_dct[cn.AMP_4].append(amplitudes[3])
+        mp_dct[cn.AMP_5].append(amplitudes[4])
         mp_df = pd.DataFrame(mp_dct)
-        #import pdb; pdb.set_trace()
+        
         return mp_df
        
 

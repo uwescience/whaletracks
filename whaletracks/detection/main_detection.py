@@ -29,22 +29,23 @@ import pandas as pd
 import whaletracks.common.constants as cn
 from datetime import datetime
 from whaletracks.common.util import datetimeToEpoch
+from scipy.signal import hilbert
 
-FINFLAG = False #True if detecting fins, False if detecting blues
+FINFLAG = True #True if detecting fins, False if detecting blues
 #CHUNK_FILE = "Blues_chunk_test.csv"
-CHUNK_FILE = "Fins_chunk.csv" #Name of saved call file
+CHUNK_FILE = "Fins_chunk_marianas.csv" #Name of saved call file
 #FIN_DET_SERIES = "fin_series.csv"
-PLOTFLAG = True #Use if troubleshooting and want to see plots.
-MP_FLAG = False #Use if storing Fin multipath info
+PLOTFLAG = False #Use if troubleshooting and want to see plots.
+MP_FLAG = True #Use if storing Fin multipath info
 CLIENT_CODE = 'IRIS'
-network="OO" #Network name "OO" for OOI, "7D" for Cascadia, "XF" for marianas
-station="AXBA1" #Specific station, or '*' for all available stations
+network="XF" #Network name "OO" for OOI, "7D" for Cascadia, "XF" for marianas
+station="B19" #Specific station, or '*' for all available stations
 location='*'  # '*' for all available locations
 channel='BHZ,HHZ,ELZ' #Choose channels,  you'll want 'BHZ,HHZ' for Cascadia
                       #Check http://ds.iris.edu/mda/OO/ for OOI station channels
 
 #DET_PATH=cn.SCM_DETECTION.csv_path
-DET_PATH="Fins_final_test.csv" #Final save file
+DET_PATH="Fins_final_marianas.csv" #Final save file
 
 if FINFLAG == False:
     #Build blue whale B-call characteristics - wide
@@ -73,8 +74,8 @@ if FINFLAG:
 #DUR = 10 #average duration
 
 
-#STARTTIME = ("2012-12-01T08:00:00.000") #for marianas fins
-#ENDTIME = ("2013-02-06T00:00:00.000")
+STARTTIME = ("2012-02-02T00:00:00.000") #for marianas fins
+ENDTIME = ("2013-02-06T00:00:00.000")
 
 #STARTTIME = ("2012-01-09T04:10:00.000") # for blue whale freq testing FN14A
 #ENDTIME = ("2012-01-09T04:20:00.000")
@@ -82,8 +83,8 @@ if FINFLAG:
 #STARTTIME = ("2012-03-30T21:37:00.000") # for fin max call testing marianas
 #ENDTIME = ("2012-03-30T22:38:00.000")
 
-STARTTIME = ("2018-08-25T13:07:00.000") #for testing on FN14A fins
-ENDTIME = ("2018-08-25T15:37:00.000")
+#STARTTIME = ("2018-08-25T13:07:00.000") #for testing on FN14A fins
+#ENDTIME = ("2018-08-25T15:37:00.000")
 
 HALF_HOUR = 1800  # in seconds
 CHUNK_LENGTH=HALF_HOUR  #secnods
@@ -148,7 +149,7 @@ def main(STARTTIME, ENDTIME,
         #Remove sensitivity and response, and filter data
         st_raw.detrend(type="demean")
         st_raw.detrend(type="linear")
-        st_raw.remove_response(output='VEL',pre_filt=[1,3,26,30])
+        st_raw.remove_response(output='VEL',pre_filt=[1,3,40,45])
         st_raw.remove_sensitivity()
         
 
@@ -176,7 +177,7 @@ def main(STARTTIME, ENDTIME,
                 #Spectrogram metrics
                 window_size=2
                 overlap=.95
-                freqlim=[12, 25]
+                freqlim=[6, 34]
                 #SNR metrics
                 snr_limits=[15, 25]
                 snr_calllength=1
@@ -193,7 +194,7 @@ def main(STARTTIME, ENDTIME,
                 #Spectrogram metrics
                 window_size=5
                 overlap=.95
-                freqlim=[12, 18]
+                freqlim=[10, 20]
                 #SNR metrics
                 snr_limits=[14, 16]
                 snr_calllength=4
@@ -220,29 +221,66 @@ def main(STARTTIME, ENDTIME,
             
            #Pick detections using EventAnalyzer class
             analyzer_j = EventAnalyzer(times, values, utcstart_chunk, dur=event_dur, prominence=prominence, distance=distance, rel_height=rel_height)
-            analyzer_j.plot()
+            #analyzer_j.plot()
+
             #get multipath data for fins
-            if MP_FLAG:
+            if MP_FLAG: #if MP_FLAG is True
                 mp_df = pd.DataFrame(columns=cn.SCM_MULTIPATHS.columns)
+                samples =list(range(0,len(tr_filt.data)))
+                sos = sig.butter(4, np.array([15, 20]), 'bp', fs=tr_filt.stats.sampling_rate, output = 'sos') 
+                filtered_data = sig.sosfiltfilt(sos, tr_filt.data)
+                amplitude_envelope = abs(hilbert(filtered_data))
+                sos = sig.butter(4, 3, 'lp', fs=tr_filt.stats.sampling_rate, output = 'sos')
+                filtered_env = sig.sosfiltfilt(sos, amplitude_envelope)
+                #seconds=[s/tr_filt.stats.sampling_rate for s in samples] 
+
                 utctimes=[utcstart_chunk + t for t in times]
                 dt_up=10
                 dt_down=25
                 
                 for det in range(0,len(analyzer_j.df)):
                     master_det = analyzer_j.df['start_time'][det]
-                    start_seq=max([master_det-dt_up,min(utctimes)])
-                    end_seq=min([master_det+dt_down,max(utctimes)])
-                    seq_utc = [utctime for utctime in utctimes if start_seq < utctime < end_seq]
-                    xy, x_ind, seq_inds = np.intersect1d(seq_utc, utctimes, return_indices=True)
-                    seq_vals = values[seq_inds]
+                    master_det_sec = (master_det - utcstart_chunk)*int(tr_filt.stats.sampling_rate)
+
+                    start_sample=max([master_det_sec-dt_up*tr_filt.stats.sampling_rate,min(samples)])
+                    end_sample=min([master_det_sec+dt_down*tr_filt.stats.sampling_rate,max(samples)])
+
+                    #start_seq=max([master_det-dt_up,min(utctimes)])
+                    #end_seq=min([master_det+dt_down,max(utctimes)])
+
+                    #seq_utc = [utctime for utctime in utctimes if start_seq < utctime < end_seq]
+                    seq_samples = [s for s in samples if start_sample < s < end_sample]
+                    seq_seconds = [s/tr_filt.stats.sampling_rate for s in seq_samples]
+                    #samp_seconds = [s-seq_seconds[0] for s in seq_samples]
+                    seq_data = filtered_env[seq_samples]
+
+                    #xy, x_ind, seq_inds = np.intersect1d(seq_utc, utctimes, return_indices=True)
+                    #seq_vals = values[seq_inds]
+
+                    #mp_event=analyzer_j.mp_picker(seq_utc, seq_vals, master_det)
                     
-                    mp_event=analyzer_j.mp_picker(seq_utc, seq_vals, master_det)
+                    mp_event=analyzer_j.mp_picker(seq_seconds, seq_data, utcstart_chunk, prominence=10**-17)
                     mp_df=mp_df.append(mp_event,ignore_index=True)
                     
                     
+                   
                 #import pdb; pdb.set_trace() 
                 analyzer_j.df= pd.concat([analyzer_j.df, mp_df], axis=1)
-                   
+                if PLOTFLAG:
+                    seconds=[s/100 for s in samples]
+                    utctimes=[utcstart_chunk+s for s in seconds]
+                    plt.plot(utctimes,filtered_data)
+                    plt.plot(utctimes,filtered_env)
+                    plt.scatter(mp_df['arrival_1'],mp_df['amp_1'])
+                    plt.scatter(mp_df['arrival_2'],mp_df['amp_2'])
+                    plt.scatter(mp_df['arrival_3'],mp_df['amp_3'])
+                    plt.scatter(mp_df['arrival_4'],mp_df['amp_4'])
+                    plt.scatter(mp_df['arrival_5'],mp_df['amp_5'])
+                    plt.xlabel('seconds')
+                    plt.ylabel('amplitude')
+                    plt.show()
+
+                #import pdb; pdb.set_trace()
 
             #Calculate SNR info
             [snr,ambient_snr] = detect.get_snr(analyzer_j, t, f_sub, Sxx_sub, utcstart_chunk,snr_limits=snr_limits,snr_calllength=snr_calllength,snr_freqwidth=snr_freqwidth,dur=dur)

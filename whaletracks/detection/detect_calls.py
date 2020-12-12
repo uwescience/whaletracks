@@ -55,7 +55,7 @@ def finKernelLims(f0,f1,bdwdth):
     return ker_min, ker_max  
 
 def plotwav(samp, data, filt_type='bandpass', filt_freqlim=[12, 18], 
-            filt_order=4, window_size=4, overlap=.95, window_type='hann',
+            filt_order=2, window_size=4, overlap=.95, window_type='hann',
             plotflag=True, scale_func=defaultScaleFunction,ylim=[12, 18]): 
     """
     Calculate spectogram and plot.
@@ -79,36 +79,40 @@ def plotwav(samp, data, filt_type='bandpass', filt_freqlim=[12, 18],
       Sxx - Spectrogram of amplitudes
     """
     #filter data to spectral bands where B-call is
-    [b, a] = sig.butter(filt_order, np.array(filt_freqlim)/samp, filt_type, 'ba') 
-    filtered_data = sig.filtfilt(b, a, data)
+    
+    sos = sig.butter(filt_order, filt_freqlim, 'bp', fs=samp, output = 'sos') 
+    filtered_data = sig.sosfiltfilt(sos, data)
+
+    #[b, a] = sig.butter(filt_order, np.array(filt_freqlim)/samp, filt_type, 'ba') 
+    #filtered_data = sig.filtfilt(b, a, data)
 
     
     datalength = data.size
     times = (np.arange(datalength)/samp) 
 
+    [f, t, Sxx] = sig.spectrogram(filtered_data, int(samp), 
+    window_type,int(samp*window_size),int(samp*window_size*overlap))
+
     #plot timeseries on upper axis
     if plotflag == True:
         plt.figure(PLT_TIMESERIES, figsize=FIGSIZE)
-        plt.subplot(211)
-        plt.plot(times[FILTER_OFFSET:],filtered_data[FILTER_OFFSET:])
-        plt.axis([min(times), max(times), min(filtered_data[FILTER_OFFSET:]), 
-                  max(filtered_data[FILTER_OFFSET:])])
-        plt.xlabel('Seconds')
-        plt.ylabel('Amplitude')
+        fig, (ax0, ax1) = plt.subplots(nrows=2,sharex=True)
+        #plt.subplot(211)
+        ax0.plot(times[FILTER_OFFSET:],filtered_data[FILTER_OFFSET:])
+        #plt.axis([min(times), max(times), min(filtered_data[FILTER_OFFSET:]), 
+                  #max(filtered_data[FILTER_OFFSET:])])
+        ax0.set_xlabel('Seconds')
+        ax0.set_ylabel('Amplitude')
+        ax0.set_title('Filtered timeseries and spectrogram of test data')
 
-    #plot spectrogram on lower axis
-    [f, t, Sxx] = sig.spectrogram(filtered_data, int(samp), 
-    window_type,int(samp*window_size),int(samp*window_size*overlap))
-    
-    if plotflag == True:
         cmap = plt.get_cmap('magma')
         vmin, vmax = scale_func(Sxx)
         norm = color.Normalize(vmin=vmin, vmax=vmax)
-        plt.subplot(212)
-        plt.pcolormesh(t, f, 10*np.log10(Sxx), cmap=cmap, norm=norm)    
-        plt.ylabel('Frequency [Hz]')
-        plt.xlabel('Time [sec]')
-        plt.ylim(ylim)
+        #plt.subplot(212)
+        ax1.pcolormesh(t, f, 10*np.log10(Sxx), cmap=cmap, norm=norm)    
+        ax1.set_ylabel('Frequency [Hz]')
+        ax1.set_xlabel('Time [sec]')
+        ax1.set_ylim(ylim)
         plt.show()
         #plt.clf()
         
@@ -145,10 +149,11 @@ def buildkernel(f0, f1, bdwdth, dur, f, t, samp, plotflag=True,kernel_lims=finKe
     for j in range(np.size(tvec)):
         #calculate hat function that is centered on linearly decresing
         #frequency values for each time in tvec
-        x = fvec-(f0+(t[j]/dur)*(f1-f0))
+        x = fvec-(f0+(tvec[j]/dur)*(f1-f0))
         Kval = (1-np.square(x)/(bdwdth*bdwdth))*np.exp(-np.square(x)/(2*(bdwdth*bdwdth)))
         Kdist[j] = Kval #store hat function values in preallocated array
-                                                           
+
+    #import pdb; pdb.set_trace()                                                    
     BlueKernel_full = np.transpose(Kdist) #transpose preallocated array to be plotted vs. tvec and fvec
     freq_inds=np.where(np.logical_and(fvec>=ker_min, fvec<=ker_max))
     
@@ -242,7 +247,7 @@ def xcorr(t,f,Sxx,tvec,fvec,BlueKernel,plotflag=True,scale_func=defaultScaleFunc
         ax1.set_xticks([])
         #ax1.set_xlabel('Time [seconds]')
         fig.tight_layout()
-        fig
+        #fig
     return  [t_scale, CorrVal_scale] 
 
     #plt.savefig('Spectrogram_scores.png')
@@ -359,7 +364,7 @@ def get_snr(analyzer_j,t,f,Sxx,utcstart_chunk,snr_limits=[14, 16],snr_calllength
 
     #Get SNR of 5 seconds of noise preceding call
     start_times=analyzer_j.df['start_time'].to_list()
-    noise_t_int=np.int((dur)/(utc_t[1] - utc_t[0]))
+    noise_t_int=np.int((dur/2)/(utc_t[1] - utc_t[0]))
     start_snr=[]
     for utc_time in start_times:
         
