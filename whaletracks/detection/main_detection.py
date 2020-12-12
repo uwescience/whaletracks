@@ -31,11 +31,11 @@ from datetime import datetime
 from whaletracks.common.util import datetimeToEpoch
 from scipy.signal import hilbert
 
-FINFLAG = True #True if detecting fins, False if detecting blues
+FINFLAG = False #True if detecting fins, False if detecting blues
 #CHUNK_FILE = "Blues_chunk_test.csv"
 CHUNK_FILE = "Fins_chunk_marianas.csv" #Name of saved call file
 #FIN_DET_SERIES = "fin_series.csv"
-PLOTFLAG = False #Use if troubleshooting and want to see plots.
+PLOTFLAG = True #Use if troubleshooting and want to see plots.
 MP_FLAG = True #Use if storing Fin multipath info
 CLIENT_CODE = 'IRIS'
 network="XF" #Network name "OO" for OOI, "7D" for Cascadia, "XF" for marianas
@@ -74,7 +74,7 @@ if FINFLAG:
 #DUR = 10 #average duration
 
 
-STARTTIME = ("2012-02-02T00:00:00.000") #for marianas fins
+STARTTIME = ("2012-02-10T00:00:00.000") #for marianas fins
 ENDTIME = ("2013-02-06T00:00:00.000")
 
 #STARTTIME = ("2012-01-09T04:10:00.000") # for blue whale freq testing FN14A
@@ -280,7 +280,7 @@ def main(STARTTIME, ENDTIME,
                     plt.ylabel('amplitude')
                     plt.show()
 
-                #import pdb; pdb.set_trace()
+                import pdb; pdb.set_trace()
 
             #Calculate SNR info
             [snr,ambient_snr] = detect.get_snr(analyzer_j, t, f_sub, Sxx_sub, utcstart_chunk,snr_limits=snr_limits,snr_calllength=snr_calllength,snr_freqwidth=snr_freqwidth,dur=dur)
