@@ -1,5 +1,9 @@
 """Acquires data used from obspy and builds the database."""
 
+import sys
+sys.path.append('/Users/wader/Desktop/whaletracks/') 
+sys.path.append('/Users/wader/Desktop/whaletracks/common_python') 
+
 from common_python.database import database_util as util
 import whaletracks.common. constants as cn
 

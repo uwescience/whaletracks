@@ -30,22 +30,23 @@ import whaletracks.common.constants as cn
 from datetime import datetime
 from whaletracks.common.util import datetimeToEpoch
 from scipy.signal import hilbert
+import time
 
-FINFLAG = False #True if detecting fins, False if detecting blues
+FINFLAG = True #True if detecting fins, False if detecting blues
 #CHUNK_FILE = "Blues_chunk_test.csv"
-CHUNK_FILE = "Fins_chunk_marianas.csv" #Name of saved call file
+CHUNK_FILE = "Fins_chunk_Axial.csv" #Name of saved call file
 #FIN_DET_SERIES = "fin_series.csv"
-PLOTFLAG = True #Use if troubleshooting and want to see plots.
-MP_FLAG = True #Use if storing Fin multipath info
+PLOTFLAG = False #Use if troubleshooting and want to see plots.
+MP_FLAG = False #Use if storing Fin multipath info
 CLIENT_CODE = 'IRIS'
-network="XF" #Network name "OO" for OOI, "7D" for Cascadia, "XF" for marianas
-station="B19" #Specific station, or '*' for all available stations
+network="OO" #Network name "OO" for OOI, "7D" for Cascadia, "XF" for marianas
+station= "AXBA1" # "B19" for marianas station #Specific station, or '*' for all available stations
 location='*'  # '*' for all available locations
-channel='BHZ,HHZ,ELZ' #Choose channels,  you'll want 'BHZ,HHZ' for Cascadia
+channel= 'HDH' #'BHZ,HHZ,ELZ' #Choose channels,  you'll want 'BHZ,HHZ' for Cascadia
                       #Check http://ds.iris.edu/mda/OO/ for OOI station channels
 
 #DET_PATH=cn.SCM_DETECTION.csv_path
-DET_PATH="Fins_final_marianas.csv" #Final save file
+DET_PATH="Fins_final_year5_Axial.csv" #Final save file
 
 if FINFLAG == False:
     #Build blue whale B-call characteristics - wide
@@ -74,8 +75,8 @@ if FINFLAG:
 #DUR = 10 #average duration
 
 
-STARTTIME = ("2012-02-10T00:00:00.000") #for marianas fins
-ENDTIME = ("2013-02-06T00:00:00.000")
+STARTTIME = ("2020-02-09T15:00:00.000") #for marianas fins
+ENDTIME = ("2020-02-18T05:00:00.000")
 
 #STARTTIME = ("2012-01-09T04:10:00.000") # for blue whale freq testing FN14A
 #ENDTIME = ("2012-01-09T04:20:00.000")
@@ -144,13 +145,19 @@ def main(STARTTIME, ENDTIME,
             utcstart_chunk=utcstart_chunk+CHUNK_LENGTH
             utcend_chunk=utcend_chunk+CHUNK_LENGTH
             continue
-                
 
-        #Remove sensitivity and response, and filter data
-        st_raw.detrend(type="demean")
-        st_raw.detrend(type="linear")
-        st_raw.remove_response(output='VEL',pre_filt=[1,3,40,45])
-        st_raw.remove_sensitivity()
+        try:
+            #Remove sensitivity and response, and filter data    
+            st_raw.detrend(type="demean")
+            st_raw.detrend(type="linear")
+            st_raw.remove_response(output='VEL',pre_filt=[1,3,40,45])
+            st_raw.remove_sensitivity()
+        except:
+            #if fails, waits to reset connection then tries again
+            print('Connection reset error, retrying')
+            time.sleep(60*5)
+            continue
+               
         
 
         num_sta=len(st_raw)
@@ -280,7 +287,7 @@ def main(STARTTIME, ENDTIME,
                     plt.ylabel('amplitude')
                     plt.show()
 
-                import pdb; pdb.set_trace()
+                
 
             #Calculate SNR info
             [snr,ambient_snr] = detect.get_snr(analyzer_j, t, f_sub, Sxx_sub, utcstart_chunk,snr_limits=snr_limits,snr_calllength=snr_calllength,snr_freqwidth=snr_freqwidth,dur=dur)

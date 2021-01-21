@@ -34,7 +34,7 @@ PROJECT_CODE = os.path.join(PROJECT_DIR, PROJECT_NAME)
 COMMON_CODE = os.path.join(PROJECT_DIR, "common_python")
 STATION_FILE = os.path.join(DATA_DIR, "Cascadia_Stations.csv")
 BLUE_DETECTION_FILE = os.path.join(DATA_DIR,
-    "ExampleBlueDetections.csv")
+    "detections.csv")
 DB_PTH = os.path.join(DATA_DIR, "whaletracks.db")
 
 # Add search paths
