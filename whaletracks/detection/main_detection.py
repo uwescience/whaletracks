@@ -34,19 +34,19 @@ import time
 
 FINFLAG = True #True if detecting fins, False if detecting blues
 #CHUNK_FILE = "Blues_chunk_test.csv"
-CHUNK_FILE = "Fins_chunk_Axial.csv" #Name of saved call file
+CHUNK_FILE = "delete.csv" #Name of saved call file
 #FIN_DET_SERIES = "fin_series.csv"
-PLOTFLAG = False #Use if troubleshooting and want to see plots.
-MP_FLAG = False #Use if storing Fin multipath info
+PLOTFLAG = True #Use if troubleshooting and want to see plots.
+MP_FLAG = True #Use if storing Fin multipath info
 CLIENT_CODE = 'IRIS'
-network="OO" #Network name "OO" for OOI, "7D" for Cascadia, "XF" for marianas
-station= "AXBA1" # "B19" for marianas station #Specific station, or '*' for all available stations
+network="XF" #Network name "OO" for OOI, "7D" for Cascadia, "XF" for marianas
+station= "B19" # "B19" for marianas station #Specific station, or '*' for all available stations
 location='*'  # '*' for all available locations
-channel= 'HDH' #'BHZ,HHZ,ELZ' #Choose channels,  you'll want 'BHZ,HHZ' for Cascadia
+channel= 'HHZ' #Choose channels,  you'll want 'BHZ,HHZ' for Cascadia
                       #Check http://ds.iris.edu/mda/OO/ for OOI station channels
 
 #DET_PATH=cn.SCM_DETECTION.csv_path
-DET_PATH="Fins_final_year5_Axial.csv" #Final save file
+DET_PATH="deleteme.csv" #Final save file
 
 if FINFLAG == False:
     #Build blue whale B-call characteristics - wide
@@ -60,7 +60,7 @@ if FINFLAG:
     F0 = 25 #average start frequency
     F1 = 15 #average end frequency
     BDWDTH = 3 # average bandwidth
-    DUR = 2 #average duration
+    DUR = 1 #average duration
 
 #Blue whale A-call characteristics
 #F0 = 14.5 #average start frequency
@@ -75,20 +75,20 @@ if FINFLAG:
 #DUR = 10 #average duration
 
 
-STARTTIME = ("2020-02-09T15:00:00.000") #for marianas fins
-ENDTIME = ("2020-02-18T05:00:00.000")
+#STARTTIME = ("2020-01-01T00:00:00.000") #for marianas fins
+#ENDTIME = ("2021-01-01T00:00:00.000")
 
 #STARTTIME = ("2012-01-09T04:10:00.000") # for blue whale freq testing FN14A
 #ENDTIME = ("2012-01-09T04:20:00.000")
 
-#STARTTIME = ("2012-03-30T21:37:00.000") # for fin max call testing marianas
-#ENDTIME = ("2012-03-30T22:38:00.000")
+STARTTIME = ("2012-03-30T21:37:00.000") # for fin max call testing marianas
+ENDTIME = ("2012-03-30T22:38:00.000")
 
-#STARTTIME = ("2018-08-25T13:07:00.000") #for testing on FN14A fins
-#ENDTIME = ("2018-08-25T15:37:00.000")
+#STARTTIME = ("2018-10-25T13:07:00.000") #for testing on FN14A fins
+#ENDTIME = ("2018-10-25T13:37:00.000")
 
 HALF_HOUR = 1800  # in seconds
-CHUNK_LENGTH=HALF_HOUR  #secnods
+CHUNK_LENGTH=HALF_HOUR/5  #secnods
 
 #starttime=("2011-10-01T12:00:00.000")
 #endtime=("2012-07-01T12:00:00.000")
@@ -184,14 +184,14 @@ def main(STARTTIME, ENDTIME,
                 #Spectrogram metrics
                 window_size=2
                 overlap=.95
-                freqlim=[6, 34]
+                freqlim=[3, 37]
                 #SNR metrics
                 snr_limits=[15, 25]
                 snr_calllength=1
                 snr_freqwidth=5
                 #Event metrics
-                prominence=.6 #min threshold
-                event_dur= .5 #minimum width of detection
+                prominence=.9 #min threshold
+                event_dur= .3 #minimum width of detection
                 distance=18 #minimum distance between detections
                 rel_height=.8
 
@@ -234,16 +234,17 @@ def main(STARTTIME, ENDTIME,
             if MP_FLAG: #if MP_FLAG is True
                 mp_df = pd.DataFrame(columns=cn.SCM_MULTIPATHS.columns)
                 samples =list(range(0,len(tr_filt.data)))
-                sos = sig.butter(4, np.array([15, 20]), 'bp', fs=tr_filt.stats.sampling_rate, output = 'sos') 
+                sos = sig.butter(6, np.array([15, 25]), 'bp', fs=tr_filt.stats.sampling_rate, output = 'sos') 
                 filtered_data = sig.sosfiltfilt(sos, tr_filt.data)
                 amplitude_envelope = abs(hilbert(filtered_data))
-                sos = sig.butter(4, 3, 'lp', fs=tr_filt.stats.sampling_rate, output = 'sos')
-                filtered_env = sig.sosfiltfilt(sos, amplitude_envelope)
+                sos = sig.butter(30, 25, 'lp', fs=tr_filt.stats.sampling_rate, output = 'sos')
+                #filtered_env = sig.sosfiltfilt(sos, amplitude_envelope)
+                filtered_env = amplitude_envelope
                 #seconds=[s/tr_filt.stats.sampling_rate for s in samples] 
 
                 utctimes=[utcstart_chunk + t for t in times]
                 dt_up=10
-                dt_down=25
+                dt_down=27
                 
                 for det in range(0,len(analyzer_j.df)):
                     master_det = analyzer_j.df['start_time'][det]
@@ -274,7 +275,7 @@ def main(STARTTIME, ENDTIME,
                 #import pdb; pdb.set_trace() 
                 analyzer_j.df= pd.concat([analyzer_j.df, mp_df], axis=1)
                 if PLOTFLAG:
-                    seconds=[s/100 for s in samples]
+                    seconds=[s/tr_filt.stats.sampling_rate for s in samples]
                     utctimes=[utcstart_chunk+s for s in seconds]
                     plt.plot(utctimes,filtered_data)
                     plt.plot(utctimes,filtered_env)
