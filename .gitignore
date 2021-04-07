@@ -12,6 +12,11 @@ __pycache__/
 whaletracks/tests/*.pcl
 whaletracks/tests/*.db
 
+#database (currently too large)
+
+data/detections.csv
+data/whaletracks.db
+
 # Distribution / packaging
 .Python
 build/

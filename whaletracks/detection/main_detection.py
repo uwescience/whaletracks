@@ -34,7 +34,7 @@ import time
 
 FINFLAG = True #True if detecting fins, False if detecting blues
 #CHUNK_FILE = "Blues_chunk_test.csv"
-CHUNK_FILE = "MarianasFins_Dur1_Bdwth5.csv" #Name of saved call file
+CHUNK_FILE = "test.csv" #Name of saved call file
 #FIN_DET_SERIES = "fin_series.csv"
 PLOTFLAG = True #Use if troubleshooting and want to see plots.
 MP_FLAG = True #Use if storing Fin multipath info
@@ -46,7 +46,7 @@ channel= 'HHZ' #Choose channels,  you'll want 'BHZ,HHZ' for Cascadia
                       #Check http://ds.iris.edu/mda/OO/ for OOI station channels
 
 #DET_PATH=cn.SCM_DETECTION.csv_path
-DET_PATH="MarianasFins_Dur1_Bdwth5_final.csv" #Final save file
+DET_PATH="testfinal.csv" #Final save file
 
 if FINFLAG == False:
     #Build blue whale B-call characteristics - wide
@@ -59,7 +59,7 @@ if FINFLAG:
     #Build fin whale call characteristics
     F0 = 25 #average start frequency
     F1 = 15 #average end frequency
-    BDWDTH = 5 # average bandwidth
+    BDWDTH = 4 # average bandwidth
     DUR = 1 #average duration
 
 #Blue whale A-call characteristics
@@ -81,14 +81,14 @@ if FINFLAG:
 #STARTTIME = ("2012-01-09T04:10:00.000") # for blue whale freq testing FN14A
 #ENDTIME = ("2012-01-09T04:20:00.000")
 
-STARTTIME = ("2012-03-30T21:37:00.000") # for fin max call testing marianas
-ENDTIME = ("2012-03-30T21:40:00.000")
+STARTTIME = ("2012-03-12T20:00:00.000") # for fin max call testing marianas
+ENDTIME = ("2012-03-12T21:00:00.000")
 
 #STARTTIME = ("2018-10-25T13:07:00.000") #for testing on FN14A fins
 #ENDTIME = ("2018-10-25T13:37:00.000")
 
 HALF_HOUR = 1800  # in seconds
-CHUNK_LENGTH=HALF_HOUR/3  #secnods
+CHUNK_LENGTH=HALF_HOUR  #secnods
 
 #starttime=("2011-10-01T12:00:00.000")
 #endtime=("2012-07-01T12:00:00.000")
